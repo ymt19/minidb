@@ -46,3 +46,28 @@ int page_set_int(Page *page, int offset, int n) {
     page->data[offset++] = (n << 24) & 255;
     return 4;
 }
+
+// get bytes from page.
+int page_get_bytes(Page *page, int offset, void *value) {
+    if (page == NULL) {
+        return 0;
+    }
+
+    int length;
+    page_get_int(page, offset, &length);
+    offset += 4;
+    memmove(value, page->data + offset, length);
+    return length;
+}
+
+int page_set_bytes(Page *page, int offset, void *value) {
+    if (page == NULL) {
+        return 0;
+    }
+
+    int length = sizeof(value);
+    page_set_int(page, offset, length);
+    offset += 4;
+    memmove(page->data + offset, value, length);
+    return length;
+}
