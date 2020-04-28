@@ -3,7 +3,11 @@
 #include "block.h"
 
 Block* new_block(char filename[MAX_FILENAME], int blk_number) {
-    Block* blk = calloc(1, sizeof(Block));
+    Block* blk = malloc(sizeof(Block));
+    if (blk == NULL) {
+        return NULL;
+    }
+    
     strncpy(blk->filename, filename, sizeof(blk->filename));
     blk->blk_number = blk_number;
 }
