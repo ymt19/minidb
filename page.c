@@ -60,6 +60,7 @@ int page_get_bytes(Page *page, int offset, void *value) {
     return length;
 }
 
+// Set number of bytes and the bytes themselves to page.
 int page_set_bytes(Page *page, int offset, void *value) {
     if (page == NULL) {
         return 0;
@@ -69,5 +70,41 @@ int page_set_bytes(Page *page, int offset, void *value) {
     page_set_int(page, offset, length);
     offset += 4;
     memmove(page->data + offset, value, length);
+    return length;
+}
+
+// Get string from page.
+int page_get_string(Page *page, int offset, char **str) {
+    unsigned char* bytes;
+    int length;
+
+    if (page == NULL) {
+        return 0;
+    }
+
+    length = page_get_bytes(page, offset, &bytes);
+    if (length == 0) {
+        return 0;
+    }
+
+    memmove(*str, bytes, length);
+    return length;
+}
+
+// Set string from page.
+int page_set_string(Page *page, int offset, char *str) {
+    unsigned char* bytes;
+    int length;
+
+    if (page == NULL) {
+        return 0;
+    }
+
+    memmove(bytes, str, strlen(str));
+    length = page_set_bytes(page, offset, bytes);
+    if (length == 0) {
+        return 0;
+    }
+
     return length;
 }
