@@ -9,9 +9,9 @@
 #include "page.h"
 #include "file_manager.h"
 
-int g_blksize;
+unsigned int g_blksize;
 
-void new_FileManager(char *pathname, int blksize) {
+void new_FileManager(char *pathname, unsigned int blksize) {
     struct stat buf;
     if (stat(pathname, &buf) == -1) {
         // Directory does not exist.
