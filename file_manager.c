@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <dirent.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+
+#include "block.h"
+#include "page.h"
 #include "file_manager.h"
 
 int g_blksize;
@@ -23,4 +26,25 @@ void new_FileManager(char *pathname, int blksize) {
     }
 
     g_blksize = blksize;
+}
+
+void read_page_from_blk(Block *blk, Page *page) {
+    // Read without buffering.
+    int fd;
+    if ((fd = open(blk->filename, O_RDONLY)) == -1) {
+        perror("open");
+        exit(1);
+    }
+
+    if (lseek(fd, blk->blk_number * g_blksize, SEEK_SET) == -1) {
+        perror("lseek");
+        exit(1);
+    }
+
+    if (read(fd, page->data, g_blksize) == -1) {
+        perror("read");
+        exit(1);
+    }
+
+    close(fd);
 }
