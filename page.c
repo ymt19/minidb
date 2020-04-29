@@ -1,17 +1,19 @@
 #include <stdlib.h>
 #include <string.h>
+
+#include "file_manager.h"
 #include "page.h"
 
 // 参照 https://github.com/hawstan/ByteBuffer/blob/master/ByteBuffer.c
 
-Page* new_page_blksize(unsigned int blksize) {
+Page* new_page_blksize(void) {
     Page* page = malloc(sizeof(Page));
     if (page == NULL) {
         return NULL;
     }
 
-    page->size = blksize;
-    page->data = malloc(sizeof(unsigned char) * blksize);
+    page->size = g_blksize;
+    page->data = malloc(sizeof(unsigned char) * g_blksize);
     if (page->data == NULL) {
         return NULL;
     }
