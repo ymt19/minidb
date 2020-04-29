@@ -48,3 +48,24 @@ void read_page_from_blk(Block *blk, Page *page) {
 
     close(fd);
 }
+
+void write_page_to_blk(Block *blk, Page *page) {
+    // Write without buffering.
+    int fd;
+    if ((fd = open(blk->filename, O_WRONLY)) == -1) {
+        perror("open");
+        exit(1);
+    }
+
+    if (lseek(fd, blk->blk_number * g_blksize, SEEK_SET) == -1) {
+        perror("lseek");
+        exit(1);
+    }
+
+    if (write(fd, page->data, g_blksize) == -1) {
+        perror("read");
+        exit(1);
+    }
+
+    close(1);
+}
