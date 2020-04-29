@@ -5,8 +5,6 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-#include "block.h"
-#include "page.h"
 #include "file_manager.h"
 
 unsigned int g_blksize;
