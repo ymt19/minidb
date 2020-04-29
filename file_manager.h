@@ -3,4 +3,8 @@
 
 extern int g_blksize;
 
+void new_FileManager(char*, int);
+void read_page_from_blk(Block*, Page*);
+void write_page_to_blk(Block*, Page*);
+
 #endif
