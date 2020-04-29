@@ -8,7 +8,7 @@
 
 int g_blksize;
 
-int new_FileManager(char *pathname, int blksize) {
+void new_FileManager(char *pathname, int blksize) {
     struct stat buf;
     if (stat(pathname, &buf) == -1) {
         // Directory does not exist.
