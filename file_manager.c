@@ -6,12 +6,9 @@
 #include <sys/stat.h>
 #include "file_manager.h"
 
-FileManager* new_FileManager(char *pathname, int blksize) {
-    FileManager* filemgr = malloc(sizeof(FileManager));
-    if (filemgr == NULL) {
-        return NULL;
-    }
+int g_blksize;
 
+int new_FileManager(char *pathname, int blksize) {
     struct stat buf;
     if (stat(pathname, &buf) == -1) {
         // Directory does not exist.
@@ -25,7 +22,5 @@ FileManager* new_FileManager(char *pathname, int blksize) {
         exit(1);
     }
 
-    filemgr->blksize = blksize;
-    
-    return filemgr;
+    g_blksize = blksize;
 }
