@@ -95,15 +95,12 @@ int page_get_string(Page *page, int offset, char **str) {
 
 // Set string from page.
 int page_set_string(Page *page, int offset, char *str) {
-    unsigned char* bytes;
     int length;
 
     if (page == NULL) {
         return 0;
     }
-
-    memmove(bytes, str, strlen(str));
-    length = page_set_bytes(page, offset, bytes);
+    length = page_set_bytes(page, offset, str);
     if (length == 0) {
         return 0;
     }
