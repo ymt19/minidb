@@ -37,15 +37,15 @@ int page_get_int(Page *page, int offset, int* value) {
     return 4;
 }
 
-int page_set_int(Page *page, int offset, int n) {
+int page_set_int(Page *page, int offset, int value) {
     if (page == NULL) {
         return 0;
     }
-
-    page->data[offset++] = n & 255;
-    page->data[offset++] = (n << 8) & 255;
-    page->data[offset++] = (n << 16) & 255;
-    page->data[offset++] = (n << 24) & 255;
+    
+    page->data[offset++] = value & 255;
+    page->data[offset++] = (value << 8) & 255;
+    page->data[offset++] = (value << 16) & 255;
+    page->data[offset++] = (value << 24) & 255;
     return 4;
 }
 
