@@ -1,7 +1,7 @@
 #ifndef BLOCK_H
 #define BLODK_H
 
-#define MAX_FILENAME 256
+#define MAX_FILENAME (256)
 
 typedef struct Block Block;
 struct Block {
