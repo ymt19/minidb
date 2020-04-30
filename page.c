@@ -6,6 +6,9 @@
 
 // 参照 https://github.com/hawstan/ByteBuffer/blob/master/ByteBuffer.c
 
+/**
+ * Allocates a new page.
+ */
 Page* new_page_blksize(void) {
     Page* page = malloc(sizeof(Page));
     if (page == NULL) {
@@ -22,11 +25,17 @@ Page* new_page_blksize(void) {
     return page;
 }
 
+/**
+ * Clear the contents of specified page.
+ */
 void page_clear(Page *page) {
     memset(page->data, 0, page->size);
 }
 
-// get 32bit(4byte) int from page.
+/**
+ * Get value of int from page.
+ * @returns 4 on success 0 on underflow
+ */
 int page_get_int(Page *page, int offset, int* value) {
     if (page == NULL) {
         return 0;
@@ -37,6 +46,10 @@ int page_get_int(Page *page, int offset, int* value) {
     return 4;
 }
 
+/**
+ * Set value of int to page.
+ * @returns 4 on success 0 on underflow.
+ */
 int page_set_int(Page *page, int offset, int value) {
     if (page == NULL) {
         return 0;
@@ -49,7 +62,10 @@ int page_set_int(Page *page, int offset, int value) {
     return 4;
 }
 
-// get bytes from page.
+/**
+ * Get sequential bytes from page.
+ * @returns size of the bytes on success 0 on underflow.
+ */
 int page_get_bytes(Page *page, int offset, void *value) {
     if (page == NULL) {
         return 0;
@@ -63,6 +79,11 @@ int page_get_bytes(Page *page, int offset, void *value) {
 }
 
 // Set number of bytes and the bytes themselves to page.
+/**
+ * Set to page value of int that is size of bytes and the bytes themselves
+ *  to page.
+ * @returns size written to page on success 0 on undewflow.
+ */
 int page_set_bytes(Page *page, int offset, unsigned char *value) {
     if (page == NULL) {
         return 0;
@@ -81,6 +102,10 @@ int page_set_bytes(Page *page, int offset, unsigned char *value) {
 }
 
 // Get string from page.
+/**
+ * Get string from page.
+ * @returns size of string on success 0 on underflow.
+ */
 int page_get_string(Page *page, int offset, char *str) {
     printf("%p page_get_string str\n", str);
     unsigned char *bytes = calloc(1, sizeof(unsigned char) * MAX_STRING_SIZE);
@@ -98,7 +123,10 @@ int page_get_string(Page *page, int offset, char *str) {
     return length;
 }
 
-// Set string from page.
+/**
+ * Set string to page.
+ * @returns size written to page on success 0 on underflow.
+ */
 int page_set_string(Page *page, int offset, char *str) {
     int length;
 
