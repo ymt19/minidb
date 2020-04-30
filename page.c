@@ -50,7 +50,7 @@ int page_set_int(Page *page, int offset, int value) {
 }
 
 // get bytes from page.
-int page_get_bytes(Page *page, int offset, unsigned char *value) {
+int page_get_bytes(Page *page, int offset, void *value) {
     if (page == NULL) {
         return 0;
     }
@@ -58,7 +58,7 @@ int page_get_bytes(Page *page, int offset, unsigned char *value) {
     int length;
     page_get_int(page, offset, &length);
     offset += 4;
-    memmove(value, &(page->data[offset]), length);
+    memmove(value, page->data + offset, length);
     return length;
 }
 
@@ -69,26 +69,32 @@ int page_set_bytes(Page *page, int offset, unsigned char *value) {
     }
 
     int length = strlen(value);
+    // String that is lager than MAX_STRING_SIZE cannot be handled.
+    if (length > MAX_STRING_SIZE) {
+        length = MAX_STRING_SIZE;
+    }
     page_set_int(page, offset, length);
     offset += 4;
-    memmove(page->data + offset, value, length);
+    memmove(page->data + offset, value, min(length, MAX_STRING_SIZE));
+    length += 4;
     return length;
 }
 
 // Get string from page.
-int page_get_string(Page *page, int offset, char **str) {
-    unsigned char* bytes;
+int page_get_string(Page *page, int offset, char *str) {
+    printf("%p page_get_string str\n", str);
+    unsigned char *bytes = calloc(1, sizeof(unsigned char) * MAX_STRING_SIZE);
     int length;
 
     if (page == NULL) {
         return 0;
     }
-
     length = page_get_bytes(page, offset, bytes);
     if (length == 0) {
         return 0;
     }
-    memmove(str, &bytes, length);
+    memmove(str, bytes, length);
+    free(bytes);
     return length;
 }
 
