@@ -99,10 +99,8 @@ int page_set_string(Page *page, int offset, char *str) {
     if (page == NULL) {
         return 0;
     }
+
     length = page_set_bytes(page, offset, str);
-    if (length == 0) {
-        return 0;
-    }
 
     return length;
 }
