@@ -50,7 +50,7 @@ void read_page_from_blk(Block *blk, Page *page) {
 void write_page_to_blk(Block *blk, Page *page) {
     // Write without buffering.
     int fd;
-    if ((fd = open(blk->filename, O_WRONLY)) == -1) {
+    if ((fd = open(blk->filename, O_WRONLY | O_CREAT, 0777)) == -1) {
         perror("open");
         exit(1);
     }
@@ -65,5 +65,5 @@ void write_page_to_blk(Block *blk, Page *page) {
         exit(1);
     }
 
-    close(1);
+    close(fd);
 }
