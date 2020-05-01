@@ -3,6 +3,7 @@
 
 #include "block.h"
 #include "page.h"
+#include "file_manager.h"
 
 typedef struct LogManager LogManager;
 struct LogManager {
@@ -10,7 +11,7 @@ struct LogManager {
     Page *log_page;
     Block *current_blk;
     int latest_LSN;
-    int last_saved_LSN;
+    int last_written_LSN;
 };
 
 #endif

@@ -17,16 +17,16 @@ LogManager* new_LogManager(char log_filename[MAX_FILENAME]) {
     }
     // lm->current_block
     lm->current_blk = 0;
-    lm->last_saved_LSN = 0;
+    lm->last_written_LSN = 0;
 }
 
 void flush(LogManager *lm) {
     write_page_to_blk(lm->current_blk, lm->log_page);
-    lm->last_saved_LSN = lm->latest_LSN;
+    lm->last_written_LSN = lm->latest_LSN;
 }
 
 void log_flush_to_lsn(LogManager *lm, int lsn) {
-    if (lsn >= lm->last_saved_LSN) {
+    if (lsn >= lm->last_written_LSN) {
         flush(lm);
     }
 }
