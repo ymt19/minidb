@@ -9,7 +9,7 @@ struct Page {
     unsigned char* data;
 };
 
-Page* new_page_blksize(void);
+Page* new_page(void);
 void page_clear(Page*);
 int page_get_int(Page*, int, int*);
 int page_set_int(Page*, int, int);

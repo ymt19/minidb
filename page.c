@@ -9,7 +9,7 @@
 /**
  * Allocates a new page.
  */
-Page* new_page_blksize(void) {
+Page* new_page(void) {
     Page* page = malloc(sizeof(Page));
     if (page == NULL) {
         return NULL;
