@@ -3,6 +3,8 @@
 
 #include "log_manager.h"
 
+static void flush(LogManager*);
+
 LogManager* new_LogManager(char log_filename[MAX_FILENAME]) {
     LogManager* lm = malloc(sizeof(LogManager));
     if (lm == NULL) {
@@ -16,4 +18,15 @@ LogManager* new_LogManager(char log_filename[MAX_FILENAME]) {
     // lm->current_block
     lm->current_blk = 0;
     lm->last_saved_LSN = 0;
+}
+
+void flush(LogManager *lm) {
+    write_page_to_blk(lm->current_blk, lm->log_page);
+    lm->last_saved_LSN = lm->latest_LSN;
+}
+
+void log_flush_to_lsn(LogManager *lm, int lsn) {
+    if (lsn >= lm->last_saved_LSN) {
+        flush(lm);
+    }
 }
