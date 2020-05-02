@@ -15,7 +15,9 @@ LogManager* new_LogManager(char log_filename[MAX_FILENAME]) {
     if ((lm->log_page = new_page()) == NULL) {
         return NULL;
     }
-    // lm->current_block
+    /**
+     *  lm->current_block
+     */
     lm->current_blk = 0;
     lm->last_written_LSN = 0;
 }
