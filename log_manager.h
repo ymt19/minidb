@@ -1,8 +1,6 @@
 #ifndef LOG_MANAGER_H
 #define LGO_MANAGER_H
 
-#include "block.h"
-#include "page.h"
 #include "file_manager.h"
 
 typedef struct LogManager LogManager;
