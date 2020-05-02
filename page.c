@@ -96,7 +96,7 @@ int page_set_bytes(Page *page, int offset, unsigned char *value) {
     }
     page_set_int(page, offset, length);
     offset += 4;
-    memmove(page->data + offset, value, min(length, MAX_STRING_SIZE));
+    memmove(page->data + offset, value, length);
     length += 4;
     return length;
 }
@@ -107,7 +107,6 @@ int page_set_bytes(Page *page, int offset, unsigned char *value) {
  * @returns size of string on success 0 on underflow.
  */
 int page_get_string(Page *page, int offset, char *str) {
-    printf("%p page_get_string str\n", str);
     unsigned char *bytes = calloc(1, sizeof(unsigned char) * MAX_STRING_SIZE);
     int length;
 
