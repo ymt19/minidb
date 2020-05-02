@@ -10,12 +10,12 @@ struct Page {
 };
 
 Page* new_page(void);
-void page_clear(Page*);
-int page_get_int(Page*, int, int*);
-int page_set_int(Page*, int, int);
-int page_get_bytes(Page*, int, void*);
-int page_set_bytes(Page*, int, unsigned char*);
-int page_get_string(Page*, int, char*);
-int page_set_string(Page*, int, char*);
+void clear_page(Page*);
+int get_int_from_page(Page*, int, int*);
+int set_int_to_page(Page*, int, int);
+int get_bytes_from_page(Page*, int, void*);
+int set_bytes_to_page(Page*, int, unsigned char*);
+int get_string_from_page(Page*, int, char*);
+int set_string_to_page(Page*, int, char*);
 
 #endif

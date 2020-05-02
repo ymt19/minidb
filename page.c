@@ -21,14 +21,14 @@ Page* new_page(void) {
         return NULL;
     }
 
-    page_clear(page);
+    clear_page(page);
     return page;
 }
 
 /**
  * Clear the contents of specified page.
  */
-void page_clear(Page *page) {
+void clear_page(Page *page) {
     memset(page->data, 0, page->size);
 }
 
@@ -36,7 +36,7 @@ void page_clear(Page *page) {
  * Get value of int from page.
  * @returns 4 on success 0 on underflow
  */
-int page_get_int(Page *page, int offset, int* value) {
+int get_int_from_page(Page *page, int offset, int* value) {
     if (page == NULL) {
         return 0;
     }
@@ -50,7 +50,7 @@ int page_get_int(Page *page, int offset, int* value) {
  * Set value of int to page.
  * @returns 4 on success 0 on underflow.
  */
-int page_set_int(Page *page, int offset, int value) {
+int set_int_to_page(Page *page, int offset, int value) {
     if (page == NULL) {
         return 0;
     }
@@ -66,13 +66,13 @@ int page_set_int(Page *page, int offset, int value) {
  * Get sequential bytes from page.
  * @returns size of the bytes on success 0 on underflow.
  */
-int page_get_bytes(Page *page, int offset, void *value) {
+int get_bytes_from_page(Page *page, int offset, void *value) {
     if (page == NULL) {
         return 0;
     }
 
     int length;
-    page_get_int(page, offset, &length);
+    get_int_from_page(page, offset, &length);
     offset += 4;
     memmove(value, page->data + offset, length);
     return length;
@@ -84,7 +84,7 @@ int page_get_bytes(Page *page, int offset, void *value) {
  *  to page.
  * @returns size written to page on success 0 on undewflow.
  */
-int page_set_bytes(Page *page, int offset, unsigned char *value) {
+int set_bytes_to_page(Page *page, int offset, unsigned char *value) {
     if (page == NULL) {
         return 0;
     }
@@ -94,7 +94,7 @@ int page_set_bytes(Page *page, int offset, unsigned char *value) {
     if (length > MAX_STRING_SIZE) {
         length = MAX_STRING_SIZE;
     }
-    page_set_int(page, offset, length);
+    set_int_to_page(page, offset, length);
     offset += 4;
     memmove(page->data + offset, value, length);
     length += 4;
@@ -106,14 +106,14 @@ int page_set_bytes(Page *page, int offset, unsigned char *value) {
  * Get string from page.
  * @returns size of string on success 0 on underflow.
  */
-int page_get_string(Page *page, int offset, char *str) {
+int get_string_from_page(Page *page, int offset, char *str) {
     unsigned char *bytes = calloc(1, sizeof(unsigned char) * MAX_STRING_SIZE);
     int length;
 
     if (page == NULL) {
         return 0;
     }
-    length = page_get_bytes(page, offset, bytes);
+    length = get_bytes_from_page(page, offset, bytes);
     if (length == 0) {
         return 0;
     }
@@ -126,14 +126,14 @@ int page_get_string(Page *page, int offset, char *str) {
  * Set string to page.
  * @returns size written to page on success 0 on underflow.
  */
-int page_set_string(Page *page, int offset, char *str) {
+int set_string_to_page(Page *page, int offset, char *str) {
     int length;
 
     if (page == NULL) {
         return 0;
     }
 
-    length = page_set_bytes(page, offset, str);
+    length = set_bytes_to_page(page, offset, str);
 
     return length;
 }
