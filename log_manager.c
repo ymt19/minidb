@@ -30,3 +30,31 @@ void log_flush_to_lsn(LogManager *lm, int lsn) {
         log_flush(lm);
     }
 }
+
+// Add record to page from right to left.
+// The boundary is written to the first of the page.
+int log_append(LogManager *lm, unsigned char* log_record) {
+    int boundary, record_size, needed_size;
+    if (get_int_from_page(lm->log_page, 0, &boundary) == 0) {
+        return -1;
+    }
+    // size of log record
+    record_size = sizeof(log_record);
+    // size needed to write the record to page
+    needed_size = record_size + sizeof(int);
+    if (boundary - needed_size < sizeof(int)) {
+        // record does not fit into page.
+        log_flush(lm);
+        /**
+         * lm->current_blk = append_newblk_lm()
+         */
+        get_int_from_page(lm->log_page, 0, &boundary);
+    }
+
+    // new boundary
+    boundary -= needed_size;
+    set_bytes_to_page(lm->log_page, boundary, log_record);
+    set_int_to_page(lm->log_page, 0, boundary);
+    lm->latest_LSN++;
+    return lm->latest_LSN;
+}
