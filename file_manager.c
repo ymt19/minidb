@@ -67,3 +67,38 @@ void write_page_to_blk(Block *blk, Page *page) {
 
     close(fd);
 }
+
+Block* append_newblk_fm(char filename[MAX_FILENAME]) {
+    int new_blk_number = file_size(filename);
+    Block *block = new_block(filename, new_blk_number);
+    // empty byte array
+    unsigned char* bytes = malloc(sizeof(unsigned char) * g_blksize);
+
+    int fd;
+    if ((fd = open(filename, O_WRONLY | O_CREAT, 0777)) == -1) {
+        perror("open");
+        exit(1);
+    }
+    if (lseek(fd, new_blk_number * g_blksize, SEEK_SET) == -1) {
+        perror("lseek");
+        exit(1);
+    }
+    if (write(fd, bytes, g_blksize) == -1) {
+        perror("read");
+        exit(1);
+    }
+    close(fd);
+
+    free(bytes);
+
+    return block;
+}
+
+// The number of blocks in the file.
+int file_size(char filename[MAX_FILENAME]) {
+    struct stat buf;
+    if (stat(filename, &buf) == -1) {
+        return -1;
+    }
+    return (int)(buf.st_size/g_blksize);
+}
