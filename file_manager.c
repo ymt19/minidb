@@ -108,6 +108,7 @@ Block* fm_append_newblk(char filename[MAX_FILENAME]) {
 
 /**
  * Get the size of the file in a unit of blocks.
+ * @return size on success -1 on the file is not exist.
  */
 int file_size(char filename[MAX_FILENAME]) {
     struct stat buf;
