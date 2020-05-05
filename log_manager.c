@@ -23,7 +23,7 @@ LogManager* new_LogManager(char log_filename[MAX_FILENAME]) {
 }
 
 void log_flush(LogManager *lm) {
-    write_page_to_blk(lm->current_blk, lm->log_page);
+    fm_write_page_to_blk(lm->current_blk, lm->log_page);
     lm->last_written_LSN = lm->latest_LSN;
 }
 
