@@ -26,7 +26,7 @@ LogManager* new_LogManager(char log_filename[MAX_FILENAME]) {
         fm_read_page_from_blk(lm->current_blk, lm->log_page);
     }
 
-    lm->current_blk = 0;
+    lm->latest_LSN = 0;
     lm->last_written_LSN = 0;
 }
 
