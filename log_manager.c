@@ -4,6 +4,7 @@
 #include "log_manager.h"
 
 static void log_flush(LogManager*);
+Block* append_newblk_lm(LogManager*);
 
 LogManager* new_LogManager(char log_filename[MAX_FILENAME]) {
     LogManager* lm = malloc(sizeof(LogManager));
@@ -31,6 +32,14 @@ void log_flush_to_lsn(LogManager *lm, int lsn) {
     if (lsn >= lm->last_written_LSN) {
         log_flush(lm);
     }
+}
+
+Block* append_newblk_lm(LogManager *lm) {
+    Block *block = fm_append_newblk(lm->log_filename);
+    clear_page(lm->log_page);
+    set_int_to_page(lm->log_page, 0, g_blksize);
+    fm_write_page_to_blk(block, lm->log_page);
+    return block;
 }
 
 // Add record to page from right to left.
