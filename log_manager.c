@@ -16,9 +16,16 @@ LogManager* new_LogManager(char log_filename[MAX_FILENAME]) {
     if ((lm->log_page = new_page()) == NULL) {
         return NULL;
     }
-    /**
-     *  lm->current_block
-     */
+
+    int logsize = file_size(lm->log_filename);
+    if (logsize == 0) {
+        // log file is empty.
+        lm->current_blk = append_newblk_lm(lm);
+    } else {
+        lm->current_blk = new_block(lm->log_filename, logsize - 1);
+        fm_read_page_from_blk(lm->current_blk, lm->log_page);
+    }
+
     lm->current_blk = 0;
     lm->last_written_LSN = 0;
 }
