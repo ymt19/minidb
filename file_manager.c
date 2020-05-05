@@ -26,7 +26,7 @@ void new_FileManager(char *pathname, unsigned int blksize) {
     g_blksize = blksize;
 }
 
-void read_page_from_blk(Block *blk, Page *page) {
+void fm_read_page_from_blk(Block *blk, Page *page) {
     // Read without buffering.
     int fd;
     if ((fd = open(blk->filename, O_RDONLY)) == -1) {
@@ -47,7 +47,7 @@ void read_page_from_blk(Block *blk, Page *page) {
     close(fd);
 }
 
-void write_page_to_blk(Block *blk, Page *page) {
+void fm_write_page_to_blk(Block *blk, Page *page) {
     // Write without buffering.
     int fd;
     if ((fd = open(blk->filename, O_WRONLY | O_CREAT, 0777)) == -1) {
@@ -68,7 +68,7 @@ void write_page_to_blk(Block *blk, Page *page) {
     close(fd);
 }
 
-Block* append_newblk_fm(char filename[MAX_FILENAME]) {
+Block* fm_append_newblk(char filename[MAX_FILENAME]) {
     int new_blk_number = file_size(filename);
     Block *block = new_block(filename, new_blk_number);
     // empty byte array
