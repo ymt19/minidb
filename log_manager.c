@@ -56,9 +56,7 @@ int log_append(LogManager *lm, unsigned char* log_record) {
     if (boundary - needed_size < sizeof(int)) {
         // record does not fit into page.
         log_flush(lm);
-        /**
-         * lm->current_blk = append_newblk_lm()
-         */
+        lm->current_blk = append_newblk_lm(lm);
         get_int_from_page(lm->log_page, 0, &boundary);
     }
 
