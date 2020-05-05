@@ -9,6 +9,9 @@
 
 unsigned int g_blksize;
 
+/**
+ * Create new file manager.
+ */
 void new_FileManager(char *pathname, unsigned int blksize) {
     struct stat buf;
     if (stat(pathname, &buf) == -1) {
@@ -26,6 +29,9 @@ void new_FileManager(char *pathname, unsigned int blksize) {
     g_blksize = blksize;
 }
 
+/**
+ * Read the contents of the block in to the page. 
+ */
 void fm_read_page_from_blk(Block *blk, Page *page) {
     // Read without buffering.
     int fd;
@@ -47,6 +53,9 @@ void fm_read_page_from_blk(Block *blk, Page *page) {
     close(fd);
 }
 
+/**
+ * Write the contents of the page to the block.
+ */
 void fm_write_page_to_blk(Block *blk, Page *page) {
     // Write without buffering.
     int fd;
@@ -68,6 +77,9 @@ void fm_write_page_to_blk(Block *blk, Page *page) {
     close(fd);
 }
 
+/**
+ * Append a block to the file.
+ */
 Block* fm_append_newblk(char filename[MAX_FILENAME]) {
     int new_blk_number = file_size(filename);
     Block *block = new_block(filename, new_blk_number);
@@ -94,7 +106,9 @@ Block* fm_append_newblk(char filename[MAX_FILENAME]) {
     return block;
 }
 
-// The number of blocks in the file.
+/**
+ * Get the size of the file in a unit of blocks.
+ */
 int file_size(char filename[MAX_FILENAME]) {
     struct stat buf;
     if (stat(filename, &buf) == -1) {
