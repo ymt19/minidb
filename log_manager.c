@@ -4,7 +4,7 @@
 #include "log_manager.h"
 
 static void log_flush(LogManager*);
-Block* append_newblk_lm(LogManager*);
+static Block* append_newblk_lm(LogManager*);
 
 LogManager* new_LogManager(char log_filename[MAX_FILENAME]) {
     LogManager* lm = malloc(sizeof(LogManager));
