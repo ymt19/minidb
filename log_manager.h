@@ -12,4 +12,8 @@ struct LogManager {
     int last_written_LSN;
 };
 
+LogManager* new_LogManager(char[MAX_FILENAME]);
+void log_flush_to_lsn(LogManager*, int);
+int log_append(LogManager*, unsigned char*);
+
 #endif
