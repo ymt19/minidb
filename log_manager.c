@@ -4,8 +4,11 @@
 #include "log_manager.h"
 
 static void log_flush(LogManager*);
-static Block* append_newblk_lm(LogManager*);
+static Block* lm_append_newblk(LogManager*);
 
+/**
+ * Create Log Manager.
+ */
 LogManager* new_LogManager(char log_filename[MAX_FILENAME]) {
     LogManager* lm = malloc(sizeof(LogManager));
     if (lm == NULL) {
@@ -30,18 +33,27 @@ LogManager* new_LogManager(char log_filename[MAX_FILENAME]) {
     lm->last_written_LSN = 0;
 }
 
+/**
+ * Write a log page to a file.
+ */
 void log_flush(LogManager *lm) {
     fm_write_page_to_blk(lm->current_blk, lm->log_page);
     lm->last_written_LSN = lm->latest_LSN;
 }
 
+/**
+ * Write a log up to specified LSN to a file.
+ */
 void log_flush_to_lsn(LogManager *lm, int lsn) {
     if (lsn >= lm->last_written_LSN) {
         log_flush(lm);
     }
 }
 
-Block* append_newblk_lm(LogManager *lm) {
+/**
+ * Add a new block to the log file.
+ */
+Block* lm_append_newblk(LogManager *lm) {
     Block *block = fm_append_newblk(lm->log_filename);
     clear_page(lm->log_page);
     set_int_to_page(lm->log_page, 0, g_blksize);
@@ -49,8 +61,11 @@ Block* append_newblk_lm(LogManager *lm) {
     return block;
 }
 
-// Add record to page from right to left.
-// The boundary is written to the first of the page.
+/**
+ * Add a log record from right to left.
+ * The boundary is written to the first of the page.
+ * @return positive number on success -1 on have problem with log page.
+ */
 int log_append(LogManager *lm, unsigned char* log_record) {
     int boundary, record_size, needed_size;
     if (get_int_from_page(lm->log_page, 0, &boundary) == 0) {
@@ -63,7 +78,7 @@ int log_append(LogManager *lm, unsigned char* log_record) {
     if (boundary - needed_size < sizeof(int)) {
         // record does not fit into page.
         log_flush(lm);
-        lm->current_blk = append_newblk_lm(lm);
+        lm->current_blk = lm_append_newblk(lm);
         get_int_from_page(lm->log_page, 0, &boundary);
     }
 
