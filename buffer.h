@@ -15,5 +15,6 @@ struct Buffer {
 }
 
 Buffer* new_Buffer(LogManager*);
+void buffer_modified(Buffer*, int, int);
 
 #endif

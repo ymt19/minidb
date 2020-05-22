@@ -18,3 +18,8 @@ Buufer* new_Buffer(LogManager *lm) {
 
     return Buffer;
 }
+
+void buffer_modified(Buffer* buffer, int txnum, int lsn) {
+    buffer->txnum = txnum;
+    if (lsn >= 0) buffer->lsn = lsn;
+}
