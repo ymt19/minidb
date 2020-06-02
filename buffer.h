@@ -1,5 +1,4 @@
-#ifndef BUFFER_H
-#define BUFFER_H
+#pragma once
 
 #include "file_manager.h"
 #include "log_manager.h"
@@ -16,5 +15,3 @@ struct Buffer {
 
 Buffer* new_Buffer(LogManager*);
 void buffer_modified(Buffer*, int, int);
-
-#endif

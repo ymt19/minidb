@@ -1,5 +1,4 @@
-#ifndef PAGE_H
-#define PAGE_H
+#pragma once
 
 #define MAX_STRING_SIZE (1024)
 
@@ -17,5 +16,3 @@ int get_bytes_from_page(Page*, int, void*);
 int set_bytes_to_page(Page*, int, unsigned char*);
 int get_string_from_page(Page*, int, char*);
 int set_string_to_page(Page*, int, char*);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef BLOCK_H
-#define BLODK_H
+#pragma once
 
 #define MAX_FILENAME (256)
 
@@ -11,5 +10,3 @@ struct Block {
 
 Block* new_block(char[], int);
 int is_equal_block(Block*, Block*);
-
-#endif
