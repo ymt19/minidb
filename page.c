@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "file_manager.h"
 #include "page.h"
 
 // 参照 https://github.com/hawstan/ByteBuffer/blob/master/ByteBuffer.c
