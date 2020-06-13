@@ -8,7 +8,7 @@ struct Page {
     unsigned char* data;
 };
 
-Page* new_page(void);
+Page* new_page(int);
 void clear_page(Page*);
 int get_int_from_page(Page*, int, int*);
 int set_int_to_page(Page*, int, int);

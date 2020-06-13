@@ -1,21 +1,18 @@
 #include <stdlib.h>
 #include <string.h>
-
 #include "page.h"
-
-// 参照 https://github.com/hawstan/ByteBuffer/blob/master/ByteBuffer.c
 
 /**
  * Allocates a new page.
  */
-Page* new_page(void) {
+Page* new_page(int blksize) {
     Page* page = malloc(sizeof(Page));
     if (page == NULL) {
         return NULL;
     }
 
-    page->size = g_blksize;
-    page->data = malloc(sizeof(unsigned char) * g_blksize);
+    page->size = blksize;
+    page->data = malloc(sizeof(unsigned char) * blksize);
     if (page->data == NULL) {
         return NULL;
     }
@@ -35,13 +32,12 @@ void clear_page(Page *page) {
  * Get value of int from page.
  * @returns 4 on success 0 on underflow
  */
-int get_int_from_page(Page *page, int offset, int* value) {
+int get_int_from_page(Page *page, int offset, int *value) {
     if (page == NULL) {
         return 0;
     }
 
-    // 微妙
-    *value = *((int*)(page->data + offset));
+    *value = *(int*)(page->data + offset);
     return 4;
 }
 
