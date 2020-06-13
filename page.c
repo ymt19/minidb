@@ -61,7 +61,7 @@ int set_int_to_page(Page *page, int offset, int value) {
  * Get sequential bytes from page.
  * @returns size of the bytes on success 0 on underflow.
  */
-int get_bytes_from_page(Page *page, int offset, void *value) {
+int get_bytes_from_page(Page *page, int offset, unsigned char *value) {
     if (page == NULL) {
         return 0;
     }
@@ -89,8 +89,12 @@ int set_bytes_to_page(Page *page, int offset, unsigned char *value) {
     if (length > MAX_STRING_SIZE) {
         length = MAX_STRING_SIZE;
     }
-    set_int_to_page(page, offset, length);
+
+    if(set_int_to_page(page, offset, length) == 0) {
+        return 0;
+    }
     offset += 4;
+
     memmove(page->data + offset, value, length);
     length += 4;
     return length;
@@ -123,12 +127,10 @@ int get_string_from_page(Page *page, int offset, char *str) {
  */
 int set_string_to_page(Page *page, int offset, char *str) {
     int length;
-
+    
     if (page == NULL) {
         return 0;
     }
-
     length = set_bytes_to_page(page, offset, str);
-
     return length;
 }
