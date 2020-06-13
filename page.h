@@ -2,7 +2,7 @@
 
 #define MAX_STRING_SIZE (1024)
 
-typdef struct {
+typedef struct {
     unsigned int size;
     unsigned char* data;
 } Page;

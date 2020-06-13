@@ -50,10 +50,11 @@ int set_int_to_page(Page *page, int offset, int value) {
         return 0;
     }
     
-    page->data[offset++] = value & 255;
-    page->data[offset++] = (value << 8) & 255;
-    page->data[offset++] = (value << 16) & 255;
-    page->data[offset++] = (value << 24) & 255;
+    // page->data[offset++] = value & 255;
+    // page->data[offset++] = (value >> 8) & 255;
+    // page->data[offset++] = (value >> 16) & 255;
+    // page->data[offset++] = (value >> 24) & 255;
+    memcpy(page->data + offset, &value, sizeof(int));
     return 4;
 }
 
@@ -127,7 +128,7 @@ int get_string_from_page(Page *page, int offset, char *str) {
  */
 int set_string_to_page(Page *page, int offset, char *str) {
     int length;
-    
+
     if (page == NULL) {
         return 0;
     }
