@@ -5,13 +5,14 @@
 /**
  * Allocate a new block.
  */
-Block* new_block(char filename[MAX_FILENAME], int blk_number) {
+Block* new_block(char *filename, int blk_number) {
     Block* blk = malloc(sizeof(Block));
     if (blk == NULL) {
         return NULL;
     }
     
-    strncpy(blk->filename, filename, sizeof(blk->filename));
+    strncpy(blk->filename, filename, MAX_FILENAME);
+    blk->filename[MAX_FILENAME-1] = '\0';
     blk->blk_number = blk_number;
 }
 

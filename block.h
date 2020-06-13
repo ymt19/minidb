@@ -8,5 +8,5 @@ struct Block {
     int blk_number;
 };
 
-Block* new_block(char[], int);
+Block* new_block(char*, int);
 int is_equal_block(Block*, Block*);
