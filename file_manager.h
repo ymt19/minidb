@@ -3,10 +3,12 @@
 #include "block.h"
 #include "page.h"
 
-extern unsigned int g_blksize;
+typedef struct {
+    int blksize;
+} FileManager;
 
-void new_FileManager(char*, unsigned int);
-void fm_read_page_from_blk(Block*, Page*);
-void fm_write_page_to_blk(Block*, Page*);
-Block* fm_append_newblk(char filename[MAX_FILENAME]);
-int file_size(char filename[MAX_FILENAME]);
+FileManager* new_FileManager(char*, unsigned int);
+void fm_read(FileManager*, Block*, Page*);
+void fm_write(FileManager*, Block*, Page*);
+Block* fm_append_newblk(FileManager*, char *filename);
+int fm_file_size(FileManager*, char *filename);

@@ -4,7 +4,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
-
 #include "file_manager.h"
 
 unsigned int g_blksize;
@@ -12,7 +11,8 @@ unsigned int g_blksize;
 /**
  * Create new file manager.
  */
-void new_FileManager(char *pathname, unsigned int blksize) {
+FileManager* new_FileManager(char *pathname, unsigned int blksize) {
+    FileManager *fm;
     struct stat buf;
     if (stat(pathname, &buf) == -1) {
         // Directory does not exist.
@@ -26,13 +26,18 @@ void new_FileManager(char *pathname, unsigned int blksize) {
         exit(1);
     }
 
-    g_blksize = blksize;
+    fm = malloc(sizeof(FileManager));
+    if (fm == NULL) {
+        return NULL;
+    }
+    fm->blksize = blksize;
+    return fm;
 }
 
 /**
  * Read the contents of the block in to the page. 
  */
-void fm_read_page_from_blk(Block *blk, Page *page) {
+void fm_read(FileManager *fm, Block *blk, Page *page) {
     // Read without buffering.
     int fd;
     if ((fd = open(blk->filename, O_RDONLY)) == -1) {
@@ -40,12 +45,12 @@ void fm_read_page_from_blk(Block *blk, Page *page) {
         exit(1);
     }
 
-    if (lseek(fd, blk->blk_number * g_blksize, SEEK_SET) == -1) {
+    if (lseek(fd, blk->blk_number * fm->blksize, SEEK_SET) == -1) {
         perror("lseek");
         exit(1);
     }
 
-    if (read(fd, page->data, g_blksize) == -1) {
+    if (read(fd, page->data, fm->blksize) == -1) {
         perror("read");
         exit(1);
     }
@@ -56,7 +61,7 @@ void fm_read_page_from_blk(Block *blk, Page *page) {
 /**
  * Write the contents of the page to the block.
  */
-void fm_write_page_to_blk(Block *blk, Page *page) {
+void fm_write(FileManager *fm, Block *blk, Page *page) {
     // Write without buffering.
     int fd;
     if ((fd = open(blk->filename, O_WRONLY | O_CREAT, 0777)) == -1) {
@@ -64,12 +69,12 @@ void fm_write_page_to_blk(Block *blk, Page *page) {
         exit(1);
     }
 
-    if (lseek(fd, blk->blk_number * g_blksize, SEEK_SET) == -1) {
+    if (lseek(fd, blk->blk_number * fm->blksize, SEEK_SET) == -1) {
         perror("lseek");
         exit(1);
     }
 
-    if (write(fd, page->data, g_blksize) == -1) {
+    if (write(fd, page->data, fm->blksize) == -1) {
         perror("read");
         exit(1);
     }
@@ -80,29 +85,28 @@ void fm_write_page_to_blk(Block *blk, Page *page) {
 /**
  * Append a block to the file.
  */
-Block* fm_append_newblk(char filename[MAX_FILENAME]) {
-    int new_blk_number = file_size(filename);
+Block* fm_append_newblk(FileManager *fm, char *filename) {
+    int new_blk_number = fm_file_size(fm, filename);
     Block *block = new_block(filename, new_blk_number);
     // empty byte array
-    unsigned char* bytes = malloc(sizeof(unsigned char) * g_blksize);
+    unsigned char *bytes = calloc(1, sizeof(unsigned char) * fm->blksize);
 
     int fd;
     if ((fd = open(filename, O_WRONLY | O_CREAT, 0777)) == -1) {
         perror("open");
         exit(1);
     }
-    if (lseek(fd, new_blk_number * g_blksize, SEEK_SET) == -1) {
+    if (lseek(fd, new_blk_number * fm->blksize, SEEK_SET) == -1) {
         perror("lseek");
         exit(1);
     }
-    if (write(fd, bytes, g_blksize) == -1) {
+    if (write(fd, bytes, fm->blksize) == -1) {
         perror("read");
         exit(1);
     }
     close(fd);
 
     free(bytes);
-
     return block;
 }
 
@@ -110,10 +114,11 @@ Block* fm_append_newblk(char filename[MAX_FILENAME]) {
  * Get the size of the file in a unit of blocks.
  * @return size on success -1 on the file is not exist.
  */
-int file_size(char filename[MAX_FILENAME]) {
+int fm_file_size(FileManager *fm, char *filename) {
     struct stat buf;
     if (stat(filename, &buf) == -1) {
-        return -1;
+        // file doesnt exist or file access erorr
+        return 0;
     }
-    return (int)(buf.st_size/g_blksize);
+    return (int)(buf.st_size/fm->blksize);
 }
