@@ -14,6 +14,7 @@ Block* new_block(char *filename, int blk_number) {
     strncpy(blk->filename, filename, MAX_FILENAME);
     blk->filename[MAX_FILENAME-1] = '\0';
     blk->blk_number = blk_number;
+    return blk;
 }
 
 /**
