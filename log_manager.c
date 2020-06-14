@@ -8,21 +8,23 @@ static Block* lm_append_newblk(LogManager*);
 /**
  * Create Log Manager.
  */
-LogManager* new_LogManager(char *log_filename) {
+LogManager* new_LogManager(FileManager *fm, char *log_filename) {
     LogManager* lm = malloc(sizeof(LogManager));
     if (lm == NULL) {
         return NULL;
     }
 
-    strncpy(lm->log_filename, log_filename, sizeof(lm->log_filename));
-    if ((lm->log_page = new_page()) == NULL) {
+    lm->fm = fm;
+
+    strncpy(lm->log_filename, log_filename, sizeof(lm->log_filename) / sizeof(char));
+    if ((lm->log_page = new_page(fm->blksize)) == NULL) {
         return NULL;
     }
 
     int logsize = file_size(lm->log_filename);
     if (logsize == 0) {
         // log file is empty.
-        lm->current_blk = append_newblk_lm(lm);
+        lm->current_blk = lm_append_newblk(lm);
     } else {
         lm->current_blk = new_block(lm->log_filename, logsize - 1);
         fm_read_page_from_blk(lm->current_blk, lm->log_page);
@@ -33,31 +35,12 @@ LogManager* new_LogManager(char *log_filename) {
 }
 
 /**
- * Write a log page to a file.
- */
-void log_flush(LogManager *lm) {
-    fm_write_page_to_blk(lm->current_blk, lm->log_page);
-    lm->last_written_LSN = lm->latest_LSN;
-}
-
-/**
  * Write a log up to specified LSN to a file.
  */
 void log_flush_to_lsn(LogManager *lm, int lsn) {
     if (lsn >= lm->last_written_LSN) {
         log_flush(lm);
     }
-}
-
-/**
- * Add a new block to the log file.
- */
-Block* lm_append_newblk(LogManager *lm) {
-    Block *block = fm_append_newblk(lm->log_filename);
-    clear_page(lm->log_page);
-    set_int_to_page(lm->log_page, 0, g_blksize);
-    fm_write_page_to_blk(block, lm->log_page);
-    return block;
 }
 
 /**
@@ -87,4 +70,25 @@ int log_append(LogManager *lm, unsigned char* log_record) {
     set_int_to_page(lm->log_page, 0, boundary);
     lm->latest_LSN++;
     return lm->latest_LSN;
+}
+
+/**
+ * Static Funcion
+ * Write a log page to a file.
+ */
+void log_flush(LogManager *lm) {
+    fm_write_page_to_blk(lm->current_blk, lm->log_page);
+    lm->last_written_LSN = lm->latest_LSN;
+}
+
+/**
+ * Static Function
+ * Add a new block to the log file.
+ */
+Block* lm_append_newblk(LogManager *lm) {
+    Block *block = fm_append_newblk(lm->fm, lm->log_filename);
+    clear_page(lm->log_page);
+    set_int_to_page(lm->log_page, 0, lm->fm->blksize);
+    fm_write_page_to_blk(block, lm->log_page);
+    return block;
 }
