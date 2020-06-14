@@ -15,9 +15,8 @@ LogManager* new_LogManager(FileManager *fm, char *log_filename) {
     }
 
     lm->fm = fm;
-
     strncpy(lm->log_filename, log_filename, sizeof(lm->log_filename) / sizeof(char));
-    if ((lm->log_page = new_page(fm->blksize)) == NULL) {
+    if ((lm->log_page = new_page(lm->fm->blksize)) == NULL) {
         return NULL;
     }
 
@@ -48,13 +47,11 @@ void log_flush_to_lsn(LogManager *lm, int lsn) {
  * The boundary is written to the first of the page.
  * @return positive number on success -1 on have problem with log page.
  */
-int log_append(LogManager *lm, unsigned char* log_record) {
-    int boundary, record_size, needed_size;
+int log_append(LogManager *lm, unsigned char* log_record, int record_size) {
+    int boundary, needed_size;
     if (get_int_from_page(lm->log_page, 0, &boundary) == 0) {
         return -1;
     }
-    // size of log record
-    record_size = sizeof(log_record);
     // size needed to write the record to page
     needed_size = record_size + sizeof(int);
     if (boundary - needed_size < sizeof(int)) {
@@ -88,6 +85,7 @@ void log_flush(LogManager *lm) {
 Block* lm_append_newblk(LogManager *lm) {
     Block *block = fm_append_newblk(lm->fm, lm->log_filename);
     clear_page(lm->log_page);
+    // set boundary to the beginning of the log page
     set_int_to_page(lm->log_page, 0, lm->fm->blksize);
     fm_write_page_to_blk(block, lm->log_page);
     return block;
