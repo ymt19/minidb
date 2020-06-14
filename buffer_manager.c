@@ -20,3 +20,10 @@ BufferManager *new_BufferManager(FileManager *fm, LogManager *lm, int num_buffs)
     bm->MAX_TIME = 10000000;   // 10sec
     return bm;
 }
+
+void bm_unpin(BufferManager *bm, Buffer *buff) {
+    buffer_unpin(buff);
+    if (buffer_is_pinned(buff) == 0) {
+        bm->available_buffs++;
+    }
+}

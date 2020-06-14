@@ -9,3 +9,4 @@ typedef struct {
 } BufferManager;
 
 BufferManager *new_BufferManager(FileManager*, LogManager*, int);
+void bm_unpin(BufferManager*, Buffer*);
