@@ -80,12 +80,11 @@ int get_bytes_from_page(Page *page, int offset, unsigned char *value) {
  *  to page.
  * @returns size written to page on success 0 on undewflow.
  */
-int set_bytes_to_page(Page *page, int offset, unsigned char *value) {
+int set_bytes_to_page(Page *page, int offset, unsigned char *value, int length) {
     if (page == NULL) {
         return 0;
     }
 
-    int length = strlen(value);
     // String that is lager than MAX_STRING_SIZE cannot be handled.
     if (length > MAX_STRING_SIZE) {
         length = MAX_STRING_SIZE;
@@ -127,11 +126,12 @@ int get_string_from_page(Page *page, int offset, char *str) {
  * @returns size written to page on success 0 on underflow.
  */
 int set_string_to_page(Page *page, int offset, char *str) {
-    int length;
+    int bytes_len, string_len;
 
     if (page == NULL) {
         return 0;
     }
-    length = set_bytes_to_page(page, offset, str);
-    return length;
+    string_len = strlen(str) + 1;   // '\0'
+    bytes_len = set_bytes_to_page(page, offset, (unsigned char*)str, string_len);
+    return bytes_len;
 }
