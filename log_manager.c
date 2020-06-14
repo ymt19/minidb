@@ -1,6 +1,5 @@
 #include <string.h>
 #include <stdlib.h>
-
 #include "log_manager.h"
 
 static void log_flush(LogManager*);
@@ -9,7 +8,7 @@ static Block* lm_append_newblk(LogManager*);
 /**
  * Create Log Manager.
  */
-LogManager* new_LogManager(char log_filename[MAX_FILENAME]) {
+LogManager* new_LogManager(char *log_filename) {
     LogManager* lm = malloc(sizeof(LogManager));
     if (lm == NULL) {
         return NULL;

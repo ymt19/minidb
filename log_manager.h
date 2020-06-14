@@ -10,6 +10,6 @@ typedef struct {
     int last_written_LSN;
 } LogManager;
 
-LogManager* new_LogManager(char[MAX_FILENAME]);
+LogManager* new_LogManager(char*);
 void log_flush_to_lsn(LogManager*, int);
 int log_append(LogManager*, unsigned char*);
