@@ -5,12 +5,10 @@
 #include "file_manager.h"
 
 int main(void) {
-    int length;
-    int pos1, pos2;
+    int length, pos1, pos2;
     char str1[] = "abcdefghijklmn";
     char str2[MAX_STRING_SIZE];
-    unsigned int num1 = 1111;
-    int num2;
+    int num1 = 1111, num2;
 
     // This database has 400 byte blocks.
     FileManager *fm;
@@ -47,7 +45,7 @@ int main(void) {
     length = get_string_from_page(page2, pos1, str2);
     assert(length == (int)strlen(str2)+1);
     assert(strcmp(str1, str2) == 0);
-    
+
     // オフセットpos2を数値として受け取る
     length = get_int_from_page(page2, pos2, &num2);
     assert(length == sizeof(int));
