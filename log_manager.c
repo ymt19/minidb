@@ -26,7 +26,7 @@ LogManager* new_LogManager(FileManager *fm, char *log_filename) {
         lm->current_blk = lm_append_newblk(lm);
     } else {
         lm->current_blk = new_block(lm->log_filename, logsize - 1);
-        fm_read_page_from_blk(lm->current_blk, lm->log_page);
+        fm_read(lm->current_blk, lm->log_page);
     }
 
     lm->latest_LSN = 0;
