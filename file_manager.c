@@ -6,8 +6,6 @@
 #include <sys/stat.h>
 #include "file_manager.h"
 
-unsigned int g_blksize;
-
 /**
  * Create new file manager.
  */
