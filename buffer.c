@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "buffer.h"
 
-Buffer* new_Buffer(FileManager *fm, LogManager *lm) {
+Buffer *new_Buffer(FileManager *fm, LogManager *lm) {
     Buffer *buffer;
     buffer = malloc(sizeof(Buffer));
     if (buffer == NULL){
