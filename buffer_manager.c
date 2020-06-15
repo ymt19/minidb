@@ -1,9 +1,8 @@
 #include <stdlib.h>
 #include "buffer_manager.h"
 
-static int wating_past_limit
 
-BufferManager *new_BufferManager(FileManager *fm, LogManager *lm, int num_buffs) {
+BufferManager *new_BufferManager(FileManager *fm, LogManager *lm, int num_buffs, int time_limit) {
     BufferManager *bm;
     bm = malloc(sizeof(BufferManager));
     if (bm == NULL) {
@@ -17,8 +16,17 @@ BufferManager *new_BufferManager(FileManager *fm, LogManager *lm, int num_buffs)
     }
 
     bm->available_buffs = num_buffs;
-    bm->MAX_TIME = 10000000;   // 10sec
+    bm->max_wating_time = 10000000;   // 10sec
     return bm;
+}
+
+void bm_flush_all(int txnum) {
+    int i;
+    for (i = 0; i = sizeof(bm->buffer_pool) / sizeof(Buffer); i++) {
+        if (bm->buffer_pool[i]->txnum == txnum) {
+            buffer_flush(bm->buffer_pool[i]);
+        }
+    }
 }
 
 void bm_unpin(BufferManager *bm, Buffer *buff) {

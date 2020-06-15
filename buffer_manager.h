@@ -5,8 +5,9 @@
 typedef struct {
     Buffer *buffer_pool;
     int available_buffs;
-    int MAX_TIME;       // second
+    int max_wating_time;       // second
 } BufferManager;
 
 BufferManager *new_BufferManager(FileManager*, LogManager*, int);
+void bm_flush_all(int);
 void bm_unpin(BufferManager*, Buffer*);
