@@ -35,3 +35,27 @@ void bm_unpin(BufferManager *bm, Buffer *buff) {
         bm->available_buffs++;
     }
 }
+
+/**
+ * 
+ */
+void bm_pin(BufferManager *bm, Block *blk) {
+
+}
+
+/**
+ * BufferPoolから指定のbufferを見つける。
+ */
+Buffer* bm_find_same_buffer(BufferManager* bm, Block *blk) {
+    int i;
+
+    for (i = 0; i < sizeof(bm->buffer_pool)/sizeof(buffer); i++) {
+        // bufferが同じブロックを持っていたら
+        // そのbufferを返す
+        if (is_equal_block(blk, bm->buffer_pool[i])) {
+            return bm->buffer_pool[i];
+        }
+    }
+
+    return NULL;
+}
