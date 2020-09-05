@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "block.h"
 
@@ -10,8 +11,9 @@ Block* new_block(char *filename, int blk_number) {
     if (blk == NULL) {
         return NULL;
     }
-    
-    strncpy(blk->filename, filename, MAX_FILENAME);
+
+    snprintf(blk->filename, MAX_FILENAME, "%s", filename);
+    //strncpy(blk->filename, filename, MAX_FILENAME);
     blk->filename[MAX_FILENAME-1] = '\0';
     blk->blk_number = blk_number;
     return blk;
