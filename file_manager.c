@@ -9,10 +9,13 @@
 /**
  * 構造体FileManagerのメモリを確保し、指定されたディレクトリに移動する。
  * 存在しないディレクトリの場合、そのディレクトリを作成する。
+ * 
+ * pathname     : ディレクトリ名
+ * data_size    : Blockのデータの大きさ
  * @return 成功したら、FileManagerのポインタ
  * @return 失敗したら、NULL
  */
-FileManager* new_FileManager(char *pathname, unsigned int blksize) {
+FileManager* new_FileManager(char *pathname, unsigned int data_size) {
     FileManager *fm;
     struct stat buf;
 
@@ -33,12 +36,17 @@ FileManager* new_FileManager(char *pathname, unsigned int blksize) {
         return NULL;
     }
 
-    fm->blksize = blksize;
+    // checksum用に1バイト追加する
+    fm->blksize = data_size + 1;
     return fm;
 }
 
 /**
  * 指定のBlockの情報を指定のPageに読み込む。
+ * 
+ * fm   : FileManager
+ * blk  : 読み込み元のBlock
+ * page : 読み込み先のPage
  */
 void fm_read(FileManager *fm, Block *blk, Page *page) {
     int fd;
@@ -62,6 +70,10 @@ void fm_read(FileManager *fm, Block *blk, Page *page) {
 
 /**
  * 指定のBlockに指定のPageの情報を書き込む。
+ * 
+ * fm   : FileManager
+ * blk  : 書き込み先のBlock
+ * page : 書き込み元のPage
  */
 void fm_write(FileManager *fm, Block *blk, Page *page) {
     int fd;
@@ -85,6 +97,9 @@ void fm_write(FileManager *fm, Block *blk, Page *page) {
 
 /**
  * fileに新しいBlockを加える。
+ * 
+ * fm       : FileManager
+ * filename : Blockを追加するfile名
  * @return 成功したら、追加したBlockを指すポインタ
  * @return 失敗したら、NULL
  */
@@ -119,6 +134,9 @@ Block* fm_append_newblk(FileManager *fm, char *filename) {
 
 /**
  * 指定のfileのBlockサイズを返す。
+ * 
+ * fm       : FileManager
+ * filename : ファイル名
  * @return 成功したら、そのサイズ
  * @return 失敗したら、0
  */
