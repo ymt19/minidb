@@ -31,6 +31,16 @@ int buffer_is_pinned(Buffer *buffer) {
     return 0;
 }
 
+/**
+ * BufferにBlockを割り当てる。
+ */
+void buffer_assign_to_block(Buffer *buff, Block *blk) {
+    buffer_flush(buff);
+    buff->blk = blk;
+    fm_read(buff->fm, buff->blk, buff->page);
+    buff->pins = 0;
+}
+
 void buffer_flush(Buffer *buffer) {
     if (buffer->txnum >= 0) {
         log_flush_to_lsn(buffer->lm, buffer->lsn);
