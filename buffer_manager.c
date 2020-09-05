@@ -59,3 +59,17 @@ Buffer* bm_find_same_buffer(BufferManager* bm, Block *blk) {
 
     return NULL;
 }
+
+/**
+ * BufferPoolからunpinnedのbufferを見つける。
+ */
+Buffer* bm_find_unpinned_buffer(BufferManager* bm) {
+    int i;
+
+    for (i = 0; i < sizeof(bm->buffer_pool) / sizeof(buffer); i++) {
+        if (!buffer_is_pinned(bm->buffer_pool[i])) {
+            return bm->buffer_pool[i];
+        }
+    }
+    return NULL;
+}
