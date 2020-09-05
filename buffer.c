@@ -26,9 +26,9 @@ void buffer_modified(Buffer *buffer, int txnum, int lsn) {
 int buffer_is_pinned(Buffer *buffer) {
     if (buffer->pins > 0) {
         return 1;
-    } else {
-        return 0;
     }
+
+    return 0;
 }
 
 void buffer_flush(Buffer *buffer) {
