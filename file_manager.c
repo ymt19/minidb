@@ -7,36 +7,40 @@
 #include "file_manager.h"
 
 /**
- * Create new file manager.
+ * 構造体FileManagerのメモリを確保し、指定されたディレクトリに移動する。
+ * 存在しないディレクトリの場合、そのディレクトリを作成する。
+ * @return 成功したら、FileManagerのポインタ
+ * @return 失敗したら、NULL
  */
 FileManager* new_FileManager(char *pathname, unsigned int blksize) {
     FileManager *fm;
     struct stat buf;
+
+    // ディレクトリが存在しない場合
     if (stat(pathname, &buf) == -1) {
-        // Directory does not exist.
         if (mkdir(pathname, 0777) == -1) {
             perror("mkdir");
             exit(1);
         }
     }
+
     if (chdir(pathname) == -1) {
         perror("chdir");
         exit(1);
     }
 
-    fm = malloc(sizeof(FileManager));
-    if (fm == NULL) {
+    if (fm = malloc(sizeof(FileManager))) == NULL) {
         return NULL;
     }
+
     fm->blksize = blksize;
     return fm;
 }
 
 /**
- * Read the contents of the block in to the page. 
+ * 指定のBlockの情報を指定のPageに読み込む。
  */
 void fm_read(FileManager *fm, Block *blk, Page *page) {
-    // Read without buffering.
     int fd;
     if ((fd = open(blk->filename, O_RDONLY)) == -1) {
         perror("open");
@@ -57,10 +61,9 @@ void fm_read(FileManager *fm, Block *blk, Page *page) {
 }
 
 /**
- * Write the contents of the page to the block.
+ * 指定のBlockに指定のPageの情報を書き込む。
  */
 void fm_write(FileManager *fm, Block *blk, Page *page) {
-    // Write without buffering.
     int fd;
     if ((fd = open(blk->filename, O_WRONLY | O_CREAT, 0777)) == -1) {
         perror("open");
@@ -81,15 +84,21 @@ void fm_write(FileManager *fm, Block *blk, Page *page) {
 }
 
 /**
- * Append a block to the file.
+ * fileに新しいBlockを加える。
+ * @return 成功したら、追加したBlockを指すポインタ
+ * @return 失敗したら、NULL
  */
 Block* fm_append_newblk(FileManager *fm, char *filename) {
-    int new_blk_number = fm_file_size(fm, filename);
-    Block *block = new_block(filename, new_blk_number);
-    // empty byte array
-    unsigned char *bytes = calloc(1, sizeof(unsigned char) * fm->blksize);
-
     int fd;
+    int new_blk_number;     // 追加するBlockのblock number
+    Block *blk;             // 追加するBlock
+    unsigned char *bytes;   // 追加するBlockに書き込むデータ
+
+    // fileのブロックサイズが、次に追加するBlockのblock number
+    new_blk_number = fm_file_size(fm, filename);
+    blk = new_block(filename, new_blk_number);
+    bytes = calloc(1, sizeof(unsigned char) * fm->blksize);
+
     if ((fd = open(filename, O_WRONLY | O_CREAT, 0777)) == -1) {
         perror("open");
         exit(1);
@@ -105,12 +114,13 @@ Block* fm_append_newblk(FileManager *fm, char *filename) {
     close(fd);
 
     free(bytes);
-    return block;
+    return blk;
 }
 
 /**
- * Get the size of the file in a unit of blocks.
- * @return size on success -1 on the file is not exist.
+ * 指定のfileのBlockサイズを返す。
+ * @return 成功したら、そのサイズ
+ * @return 失敗したら、0
  */
 int fm_file_size(FileManager *fm, char *filename) {
     struct stat buf;
