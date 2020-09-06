@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include "file_manager.h"
 
-static int checksum(unsigned char*, int); 
+static unsigned char checksum(unsigned char*, int); 
 
 /**
  * 構造体FileManagerのメモリを確保し、指定されたディレクトリに移動する。
@@ -35,7 +35,7 @@ FileManager* new_FileManager(char *pathname, unsigned int data_size) {
         exit(1);
     }
 
-    if (fm = malloc(sizeof(FileManager))) == NULL) {
+    if ((fm = malloc(sizeof(FileManager))) == NULL) {
         return NULL;
     }
 
@@ -112,7 +112,7 @@ int fm_read(FileManager *fm, Block *blk, Page *page) {
  * blk  : 書き込み先のBlock情報
  * page : 書き込み元のPage
  */
-void fm_write(FileManager *fm, Block *blk, Page *page) {
+int fm_write(FileManager *fm, Block *blk, Page *page) {
     int i, fd;
     unsigned char *bytes;       // Blockのデータを格納
     unsigned char wr_chsum;     // 書き込みをしたデータのチェックサム
@@ -142,7 +142,7 @@ void fm_write(FileManager *fm, Block *blk, Page *page) {
         }
         // チェックサム値の書き込み
         wr_chsum = checksum(bytes, fm->data_size);
-        if (write(fd, wr_chsum, fm->checksum_size) == -1) {
+        if (write(fd, &wr_chsum, fm->checksum_size) == -1) {
             perror("write");
             exit(1);
         }
