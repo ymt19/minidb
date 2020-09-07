@@ -9,18 +9,19 @@ int main(void) {
     char str1[] = "abcdefghijklmn";
     char str2[MAX_STRING_SIZE];
     int num1 = 1111, num2;
-
-    // This database has 400 byte blocks.
     FileManager *fm;
+    Block *blk;
+    Page *page1, *page2;
+
+    // 400バイトBlockと定義する。
     fm = new_FileManager("tmp", 400);
 
-    // ファイルにデータを書き込む
-    // ファイル名tmp1のblknumが2のブロックを作成し
-    // 新しいページを作成
-    Block *blk = new_block("tmp1", 2);
-    Page *page1 = new_page(fm->blksize);
+    // ファイル名tmp1のblknumが2のBlockを作成し、
+    // 新しいPageを作成する。
+    blk = new_block("tmp1", 2);
+    page1 = new_page(fm->data_size);
 
-    // page1のオフセットpos1を88としてそこにstr1をセットする
+    // page1のオフセットpos1を88としてそこにstr1をセットする。
     pos1 = 88;
     length = set_string_to_page(page1, pos1, str1);
     // '\0'を含む文字列が格納される
@@ -32,14 +33,20 @@ int main(void) {
     assert(length == sizeof(int));
 
     // ページをブロック(file)に書き込む
-    fm_write(fm, blk, page1);
+    if (fm_write(fm, blk, page1) == 0) {
+        fprintf(stderr, "failure: fm_write\n");
+        exit(1);
+    }
 
 
 
     // ファイルからデータを読み込む
     // 上の書き込みに使用したblockから読み込む
-    Page *page2 = new_page(fm->blksize);
-    fm_read(fm, blk, page2);
+    page2 = new_page(fm->data_size);
+    if (fm_read(fm, blk, page2) == 0) {
+        fprintf(stderr, "failuer: fm_read\n");
+        exit(1);
+    }
 
     // オフセットpos1を文字列として受け取る
     length = get_string_from_page(page2, pos1, str2);
