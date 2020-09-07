@@ -5,14 +5,14 @@
 /**
  * Allocates a new page.
  */
-Page* new_page(int blksize) {
+Page* new_page(int data_size) {
     Page* page = malloc(sizeof(Page));
     if (page == NULL) {
         return NULL;
     }
 
-    page->size = blksize;
-    page->data = malloc(sizeof(unsigned char) * blksize);
+    page->size = data_size;
+    page->data = malloc(sizeof(unsigned char) * data_size);
     if (page->data == NULL) {
         return NULL;
     }
@@ -37,7 +37,7 @@ int get_int_from_page(Page *page, int offset, int *value) {
         return 0;
     }
 
-    *value = *(int*)(page->data + offset);
+    memcpy(value, page->data + offset, sizeof(int));
     return 4;
 }
 
@@ -50,10 +50,6 @@ int set_int_to_page(Page *page, int offset, int value) {
         return 0;
     }
     
-    // page->data[offset++] = value & 255;
-    // page->data[offset++] = (value >> 8) & 255;
-    // page->data[offset++] = (value >> 16) & 255;
-    // page->data[offset++] = (value >> 24) & 255;
     memcpy(page->data + offset, &value, sizeof(int));
     return 4;
 }
@@ -70,7 +66,8 @@ int get_bytes_from_page(Page *page, int offset, unsigned char *value) {
     int length;
     get_int_from_page(page, offset, &length);
     offset += 4;
-    memmove(value, page->data + offset, length);
+    
+    memcpy(value, page->data + offset, length);
     return length;
 }
 
@@ -90,12 +87,14 @@ int set_bytes_to_page(Page *page, int offset, unsigned char *value, int length) 
         length = MAX_STRING_SIZE;
     }
 
+    // sizeについて、ページサイズ
+
     if(set_int_to_page(page, offset, length) == 0) {
         return 0;
     }
     offset += 4;
 
-    memmove(page->data + offset, value, length);
+    memcpy(page->data + offset, value, length);
     length += 4;
     return length;
 }
@@ -116,7 +115,8 @@ int get_string_from_page(Page *page, int offset, char *str) {
     if (length == 0) {
         return 0;
     }
-    memmove(str, bytes, length);
+
+    memcpy(str, bytes, length);
     free(bytes);
     return length;
 }
