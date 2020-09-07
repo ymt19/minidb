@@ -4,7 +4,12 @@
 #include "block.h"
 
 /**
- * Allocate a new block.
+ * 構造体Blockのメモリを確保する。
+ * 
+ * filename     : ファイル名
+ * blk_number   : block number
+ * @return 成功したら、確保したメモリ領域
+ * @return 失敗したら、NULL
  */
 Block* new_block(char *filename, int blk_number) {
     Block* blk = malloc(sizeof(Block));
@@ -13,15 +18,18 @@ Block* new_block(char *filename, int blk_number) {
     }
 
     snprintf(blk->filename, MAX_FILENAME, "%s", filename);
-    //strncpy(blk->filename, filename, MAX_FILENAME);
     blk->filename[MAX_FILENAME-1] = '\0';
     blk->blk_number = blk_number;
     return blk;
 }
 
 /**
- * Compare the two blocks.
- * @returns 1 on two blocks are the same block 0 no that is not so.
+ * 指定した2つのBlockが同じBlockであるかどうか。
+ * 
+ * b1   : 指定するBlock
+ * b2   : 指定するBlock
+ * @return 同じBlockなら、1
+ * @return 同じでないBlockなら、0
  */
 int is_equal_block(Block *b1, Block *b2) {
     if (b1->blk_number == b2->blk_number &&
