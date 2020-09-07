@@ -40,7 +40,7 @@ FileManager* new_FileManager(char *pathname, unsigned int data_size) {
     }
 
     fm->data_size = data_size;
-    fm->checksum_size = 1;      // checksumとして1バイト
+    fm->checksum_size = sizeof(unsigned char);  // checksumとして1バイト
     fm->blk_size = fm->data_size + fm->checksum_size;
     return fm;
 }
@@ -77,6 +77,7 @@ int fm_read(FileManager *fm, Block *blk, Page *page) {
         exit(1);
     }
 
+    // 10回まで読み込みを行う
     for (i = 0; i < 10; i++) {
         if (read(fd, bytes, fm->blk_size) == -1) {
             perror("read");
@@ -111,12 +112,14 @@ int fm_read(FileManager *fm, Block *blk, Page *page) {
  * fm   : FileManager
  * blk  : 書き込み先のBlock情報
  * page : 書き込み元のPage
+ * @return 成功したら、1
+ * @return 失敗したら、0
  */
 int fm_write(FileManager *fm, Block *blk, Page *page) {
     int i, fd;
     unsigned char *bytes;       // Blockのデータを格納
-    unsigned char wr_chsum;     // 書き込みをしたデータのチェックサム
-    unsigned char rd_chsum;     // 読み込みをしたデータのチェックサム
+    unsigned char wr_chsum;     // 書き込みをしたデータに付けたチェックサム
+    unsigned char rd_chsum;     // 読み込みをしたデータに付いていたチェックサム
 
     if ((bytes = malloc(sizeof(unsigned char) * fm->blk_size)) == NULL) {
         perror("malloc");
@@ -136,12 +139,12 @@ int fm_write(FileManager *fm, Block *blk, Page *page) {
             exit(1);
         }
         // データ部への書き込み
-        if (write(fd, bytes, fm->data_size) == -1) {
+        if (write(fd, page->data, fm->data_size) == -1) {
             perror("write");
             exit(1);
         }
         // チェックサム値の書き込み
-        wr_chsum = checksum(bytes, fm->data_size);
+        wr_chsum = checksum(page->data, fm->data_size);
         if (write(fd, &wr_chsum, fm->checksum_size) == -1) {
             perror("write");
             exit(1);
