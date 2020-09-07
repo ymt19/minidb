@@ -8,7 +8,8 @@
 #include "file_manager.h"
 
 static unsigned char checksum(unsigned char*, int);
-void writeAll(int, unsigned char*, unsigned int);
+static void read_all(int, unsigned char*, unsigned int);
+static void write_all(int, unsigned char*, unsigned int);
 
 /**
  * 構造体FileManagerのメモリを確保し、指定されたディレクトリに移動する。
@@ -77,10 +78,11 @@ int fm_read(FileManager *fm, Block *blk, Page *page) {
 
     // read変更 blk_size分
     // PageにBlockの内容を読み込む
-    if (read(fd, page->data, fm->data_size) == -1) {
-        perror("read");
-        exit(1);
-    }
+    // if (read(fd, page->data, fm->data_size) == -1) {
+    //     perror("read");
+    //     exit(1);
+    // }
+    read_all(fd, page->data, fm->data_size);
 
     // Blockの末尾にあるchecksumの値を抽出する
     if (read(fd, &chsum, sizeof(unsigned char)) == -1) {
@@ -128,7 +130,7 @@ void fm_write(FileManager *fm, Block *blk, Page *page) {
     //     perror("write");
     //     exit(1);
     // }
-    writeAll(fd, page->data, fm->data_size);
+    write_all(fd, page->data, fm->data_size);
 
     // チェックサム値の書き込み
     chsum = checksum(page->data, fm->data_size);
@@ -174,7 +176,7 @@ Block* fm_append_newblk(FileManager *fm, char *filename) {
     //     perror("write");
     //     exit(1);
     // }
-    writeAll(fd, bytes, fm->blk_size);
+    write_all(fd, bytes, fm->blk_size);
 
     close(fd);
     free(bytes);
@@ -218,14 +220,36 @@ unsigned char checksum(unsigned char *bytes, int size) {
 }
 
 /**
+ * 指定する範囲のデータをすべて読み込むことを保証する
+ * read(2)のラッパー関数
+ * 
+ * fd       : ファイルディスクリプタ
+ * bytes    : readするデータ
+ * goal_size: readするデータサイズ
+ */
+void read_all(int fd, unsigned char *bytes, unsigned int goal_size) {
+    int rd_size;            // 1回のread(2)で読み込まれたデータサイズ
+    int total_rd_size = 0;  // 読み込まれたデータサイズの合計
+
+    while (total_rd_size != goal_size) {
+        if ((rd_size = read(fd, bytes + total_rd_size, goal_size - total_rd_size)) == -1) {
+            perror("read");
+            exit(1);
+        }
+
+        total_rd_size += rd_size;
+    }
+}
+
+/**
  * 指定する範囲のデータをすべて書き込むことを保証する
  * write(2)のラッパー関数
  * 
- * fd   : ファイルディスクリプタ
- * bytes: writeするデータ
- * goal_size : writeするデータサイズ
+ * fd       : ファイルディスクリプタ
+ * bytes    : writeするデータ
+ * goal_size: writeするデータサイズ
  */
-void writeAll(int fd, unsigned char *bytes, unsigned int goal_size) {
+void write_all(int fd, unsigned char *bytes, unsigned int goal_size) {
     int wr_size;             // 1回のwrite(2)で書き込まれたデータサイズ
     int total_wr_size = 0;   // 書き込まれたデータサイズの合計
 
