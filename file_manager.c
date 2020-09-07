@@ -57,13 +57,12 @@ FileManager* new_FileManager(char *pathname, unsigned int data_size) {
  */
 int fm_read(FileManager *fm, Block *blk, Page *page) {
     int fd;
-    unsigned char *bytes;   // Blockの全データを格納
-    unsigned char chsum;    // チェックサム
+    unsigned char bytes[fm->data_size];     // Pageの変更前のデータ
+    unsigned char chsum;                    // チェックサム
 
-    if ((bytes = malloc(sizeof(unsigned char) * fm->blk_size)) == NULL) {
-        perror("malloc");
-        return 0;
-    }
+    // checksum不一致の場合、Pageを復元するために
+    // Pageの変更前のデータを保存しておく
+    memcpy(bytes, page->data, fm->data_size);
 
     if ((fd = open(blk->filename, O_RDONLY)) == -1) {
         perror("open");
@@ -76,25 +75,28 @@ int fm_read(FileManager *fm, Block *blk, Page *page) {
     }
 
     // read変更 blk_size分
-    if (read(fd, bytes, fm->blk_size) == -1) {
+    // PageにBlockの内容を読み込む
+    if (read(fd, page->data, fm->data_size) == -1) {
         perror("read");
         exit(1);
     }
 
     // Blockの末尾にあるchecksumの値を抽出する
-    memcpy(&chsum, bytes + fm->data_size, sizeof(unsigned char));
+    if (read(fd, &chsum, sizeof(unsigned char)) == -1) {
+        perror("read");
+        exit(1);
+    }
 
-    if (chsum == checksum(bytes, fm->data_size)) {
-        // checksum一致
-        memcpy(page->data, bytes, fm->data_size);
-        free(bytes);
+    // checksum一致
+    if (chsum == checksum(page->data, fm->data_size)) {
         close(fd);
         return 1;
     }
 
     // checksum不一致
-    free(bytes);
     close(fd);
+    // Pageの情報を復元する
+    memcpy(page->data, bytes, fm->data_size);
     return 0;
 }
 
@@ -114,10 +116,12 @@ void fm_write(FileManager *fm, Block *blk, Page *page) {
         perror("open");
         exit(1);
     }
+
     if (lseek(fd, blk->blk_number * fm->blk_size, SEEK_SET) == -1) {
         perror("lseek");
         exit(1);
     }
+    
     // データ部への書き込み
     // writeAllの追加
     if (write(fd, page->data, fm->data_size) == -1) {
@@ -158,16 +162,18 @@ Block* fm_append_newblk(FileManager *fm, char *filename) {
         perror("open");
         exit(1);
     }
+
     if (lseek(fd, new_blk_number * fm->blk_size, SEEK_SET) == -1) {
         perror("lseek");
         exit(1);
     }
+
     if (write(fd, bytes, fm->blk_size) == -1) {
         perror("read");
         exit(1);
     }
-    close(fd);
 
+    close(fd);
     free(bytes);
     return blk;
 }
