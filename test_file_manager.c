@@ -33,11 +33,7 @@ int main(void) {
     assert(length == sizeof(int));
 
     // ページをブロック(file)に書き込む
-    if (fm_write(fm, blk, page1) == 0) {
-        fprintf(stderr, "failure: fm_write\n");
-        exit(1);
-    }
-
+    fm_write(fm, blk, page1);
 
 
     // ファイルからデータを読み込む
