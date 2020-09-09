@@ -54,8 +54,8 @@ int get_int_from_page(Page *page, int offset) {
  * offset   : Pageのオフセット
  * value    : 代入する数値
  */
-void set_int_to_page(Page *page, int offset, int *value) {
-    memcpy(page->data + offset, value, sizeof(int));
+void set_int_to_page(Page *page, int offset, int value) {
+    memcpy(page->data + offset, &value, sizeof(int));
 }
 
 /**
@@ -93,7 +93,7 @@ int set_bytes_to_page(Page *page, int offset, unsigned char *value, int length) 
 
     // sizeについて、ページサイズ
 
-    set_int_to_page(page, offset, &length);
+    set_int_to_page(page, offset, length);
     offset += 4;
 
     memcpy(page->data + offset, value, length);

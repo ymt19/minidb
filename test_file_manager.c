@@ -29,7 +29,7 @@ int main(void) {
 
     // page1のstr1をセットした直後にnum1をセットする
     pos2 = pos1 + length;
-    set_int_to_page(page1, pos2, &num1);
+    set_int_to_page(page1, pos2, num1);
 
     // ページをブロック(file)に書き込む
     fm_write(fm, blk, page1);
