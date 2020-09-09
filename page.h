@@ -9,8 +9,8 @@ typedef struct {
 
 Page* new_page(int);
 void clear_page(Page*);
-int get_int_from_page(Page*, int, int*);
-int set_int_to_page(Page*, int, int);
+int get_int_from_page(Page*, int);
+void set_int_to_page(Page*, int, int*);
 int get_bytes_from_page(Page*, int, unsigned char*);
 int set_bytes_to_page(Page*, int, unsigned char*, int);
 int get_string_from_page(Page*, int, char*);

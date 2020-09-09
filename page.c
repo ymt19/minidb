@@ -3,7 +3,11 @@
 #include "page.h"
 
 /**
- * Allocates a new page.
+ * 構造体Pageのメモリを確保する。
+ * 
+ * data_size    : Pageのデータの大きさ
+ * @return 成功したら、確保したメモリ領域
+ * @return 失敗したら、NULL
  */
 Page* new_page(int data_size) {
     Page* page = malloc(sizeof(Page));
@@ -22,36 +26,36 @@ Page* new_page(int data_size) {
 }
 
 /**
- * Clear the contents of specified page.
+ * 指定するPageのデータの内容を消去する。
+ * 
+ * page : 指定するPage
  */
 void clear_page(Page *page) {
     memset(page->data, 0, page->size);
 }
 
 /**
- * Get value of int from page.
- * @returns 4 on success 0 on underflow
+ * Pageからオフセットを指定し、数値を抽出する。
+ * 
+ * page     : Page
+ * offset   : Pageのオフセット
+ * @return (value) 抽出した数値
  */
-int get_int_from_page(Page *page, int offset, int *value) {
-    if (page == NULL) {
-        return 0;
-    }
-
-    memcpy(value, page->data + offset, sizeof(int));
-    return 4;
+int get_int_from_page(Page *page, int offset) {
+    int value;  // 抽出する数値
+    memcpy(&value, page->data + offset, sizeof(int));
+    return value;
 }
 
 /**
- * Set value of int to page.
- * @returns 4 on success 0 on underflow.
+ * Pageの指定のオフセットに、数値を代入する。
+ * 
+ * page     : Page
+ * offset   : Pageのオフセット
+ * value    : 代入する数値
  */
-int set_int_to_page(Page *page, int offset, int value) {
-    if (page == NULL) {
-        return 0;
-    }
-    
-    memcpy(page->data + offset, &value, sizeof(int));
-    return 4;
+void set_int_to_page(Page *page, int offset, int *value) {
+    memcpy(page->data + offset, value, sizeof(int));
 }
 
 /**
@@ -64,7 +68,7 @@ int get_bytes_from_page(Page *page, int offset, unsigned char *value) {
     }
 
     int length;
-    get_int_from_page(page, offset, &length);
+    length = get_int_from_page(page, offset);
     offset += 4;
     
     memcpy(value, page->data + offset, length);
@@ -89,9 +93,7 @@ int set_bytes_to_page(Page *page, int offset, unsigned char *value, int length) 
 
     // sizeについて、ページサイズ
 
-    if(set_int_to_page(page, offset, length) == 0) {
-        return 0;
-    }
+    set_int_to_page(page, offset, &length);
     offset += 4;
 
     memcpy(page->data + offset, value, length);
