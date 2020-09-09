@@ -13,8 +13,8 @@ int main(void) {
     Block *blk;
     Page *page1, *page2;
 
-    // 400バイトBlockと定義する。
-    fm = new_FileManager("tmp", 400);
+    // データサイズを400バイトBlockと定義する。
+    fm = new_FileManager("tmp_test_file_manager", 400);
 
     // ファイル名tmp1のblknumが2のBlockを作成し、
     // 新しいPageを作成する。
@@ -29,8 +29,7 @@ int main(void) {
 
     // page1のstr1をセットした直後にnum1をセットする
     pos2 = pos1 + length;
-    length = set_int_to_page(page1, pos2, num1);
-    assert(length == sizeof(int));
+    set_int_to_page(page1, pos2, &num1);
 
     // ページをブロック(file)に書き込む
     fm_write(fm, blk, page1);
@@ -50,8 +49,7 @@ int main(void) {
     assert(strcmp(str1, str2) == 0);
 
     // オフセットpos2を数値として受け取る
-    length = get_int_from_page(page2, pos2, &num2);
-    assert(length == sizeof(int));
+    num2 = get_int_from_page(page2, pos2);
     assert(num1 == num2);
     return 0;
 }
