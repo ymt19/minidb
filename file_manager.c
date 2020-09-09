@@ -145,6 +145,9 @@ void fm_write(FileManager *fm, Block *blk, Page *page) {
 
 /**
  * fileに新しいBlockを加える。
+ * fileの情報とそのfileの新しいblk_numを保持する構造体Blockを
+ * 作成するだけで、実際にfileにblk_size分のデータが追加される
+ * ことはない。
  * 
  * fm       : FileManager
  * filename : Blockを追加するfile名
@@ -152,39 +155,40 @@ void fm_write(FileManager *fm, Block *blk, Page *page) {
  * @return 失敗したら、NULL
  */
 Block* fm_append_newblk(FileManager *fm, char *filename) {
-    int fd;
+    // int fd;
     int new_blk_number;     // 追加するBlockのblock number
     Block *blk;             // 追加するBlock
-    unsigned char *bytes;   // 追加するBlockに書き込むデータ
+    // unsigned char *bytes;   // 追加するBlockに書き込むデータ
 
     // fileのブロックサイズが、次に追加するBlockのblock number
     new_blk_number = fm_file_size(fm, filename);
     blk = new_block(filename, new_blk_number);
-    bytes = calloc(1, sizeof(unsigned char) * fm->blk_size);
+    // bytes = calloc(1, sizeof(unsigned char) * fm->blk_size);
 
-    if ((fd = open(filename, O_WRONLY | O_CREAT, 0777)) == -1) {
-        perror("open");
-        exit(1);
-    }
-
-    if (lseek(fd, new_blk_number * fm->blk_size, SEEK_SET) == -1) {
-        perror("lseek");
-        exit(1);
-    }
-
-    // if (write(fd, bytes, fm->blk_size) == -1) {
-    //     perror("write");
+    // if ((fd = open(filename, O_WRONLY | O_CREAT, 0777)) == -1) {
+    //     perror("open");
     //     exit(1);
     // }
-    write_all(fd, bytes, fm->blk_size);
 
-    close(fd);
-    free(bytes);
+    // if (lseek(fd, new_blk_number * fm->blk_size, SEEK_SET) == -1) {
+    //     perror("lseek");
+    //     exit(1);
+    // }
+
+    // // if (write(fd, bytes, fm->blk_size) == -1) {
+    // //     perror("write");
+    // //     exit(1);
+    // // }
+    // write_all(fd, bytes, fm->blk_size);
+
+    // close(fd);
+    // free(bytes);
     return blk;
 }
 
 /**
  * 指定のfileのBlockサイズを返す。
+ * fileに保存されているデータ量から、その値を計算する。
  * 
  * fm       : FileManager
  * filename : ファイル名
