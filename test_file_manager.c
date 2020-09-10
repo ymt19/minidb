@@ -23,17 +23,15 @@ int main(void) {
 
     // page1のオフセットpos1を88としてそこにstr1をセットする。
     pos1 = 88;
-    length = set_string_to_page(page1, pos1, str1);
-    // '\0'を含む文字列が格納される
-    assert(length == strlen(str1)+1+sizeof(int));
+    length = set_string_to_page(page1, pos1, str1, strlen(str1));
+    assert(length == strlen(str1));
 
     // page1のstr1をセットした直後にnum1をセットする
-    pos2 = pos1 + length;
+    pos2 = pos1 + length + sizeof(int);
     set_int_to_page(page1, pos2, num1);
 
     // ページをブロック(file)に書き込む
     fm_write(fm, blk, page1);
-
 
     // ファイルからデータを読み込む
     // 上の書き込みに使用したblockから読み込む
@@ -45,7 +43,7 @@ int main(void) {
 
     // オフセットpos1を文字列として受け取る
     length = get_string_from_page(page2, pos1, str2);
-    assert(length == (int)strlen(str2)+1);
+    assert(length == strlen(str2));
     assert(strcmp(str1, str2) == 0);
 
     // オフセットpos2を数値として受け取る
