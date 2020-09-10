@@ -9,14 +9,13 @@
 
 
 #include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include "log_manager.h"
 
-#define BLOCK_SIZE      (400)
 #define LOG_FILENAME    "logfile"
+
+const int BLOCK_SIZE = 400;
 
 void check_logfile(LogManager*, int);
 void create_records(LogManager*,int);
@@ -24,16 +23,42 @@ void create_records(LogManager*,int);
 int main(void) {
     FileManager *fm;
     LogManager *lm;
+    int num1 = 45;
+    int num2 = 90;
+    int num3 = 65;
+    // log fileに書き込まれているlogの数
+    // (作成したlogの数の合計)
+    //      / ((1つのBlockのサイズ) / (1つのBlockのサイズ))
+    //      * ((1つのBlockのサイズ) / (1つのBlockのサイズ))
+    int num_in_logfile;
 
-    fm = new_FileManager("tmp_test_log_manager", 400);
+    fm = new_FileManager("tmp_test_log_manager", BLOCK_SIZE);
     lm = new_LogManager(fm, LOG_FILENAME);
 
-    // 10~45の範囲のrecordを作成する
-    create_records(lm, 45);
-    check_logfile(lm, 45);
-    create_records(lm, 80);
-    lm_flush_log_to_lsn(lm, 65);
-    check_logfile(lm, 65);
+    // 合計1~num1の範囲のlogを作成する
+    create_records(lm, num1);
+
+    // 10文字のlogをnum1個作ったとき、log fileに書き込まれているlogの個数
+    num_in_logfile = num1
+                        / ( BLOCK_SIZE / (10 + sizeof(int)) )
+                        * ( BLOCK_SIZE / (10 + sizeof(int)) );
+    check_logfile(lm, num_in_logfile);
+
+    // 合計1~num2の範囲のlogが作成される
+    create_records(lm, num2);
+
+    // LSNまでのlogをファイルに書き込む
+    // ここでのLSNはlog_numに相当する
+    lm_flush_log_to_lsn(lm, num3);
+
+    // 10文字のlogをnum2個作ったとき、log fileに書き込まれているlogの個数と
+    // flushされたnum3個の最大値
+    num_in_logfile = num2
+                        / ( BLOCK_SIZE / (10 + sizeof(int)) )
+                        * ( BLOCK_SIZE / (10 + sizeof(int)) );
+    if (num_in_logfile < num3)
+        num_in_logfile = num3;
+    check_logfile(lm, num_in_logfile);
 }
 
 /**
@@ -51,13 +76,12 @@ int main(void) {
  */
 void check_logfile(LogManager *lm, int end) {
     int log_num = end;                  // 着目しているlog番号
-
     int blk_num;                        // 着目するBlockのblk_num
     int file_size;                      // log fileのBlock数
     int offset;                         // log pageのoffset
     int record_size;                    // recordのサイズ
     char record[200];                   // record
-    // char expected_record[200];          // 予想されるrecord
+    char expected_record[200];          // 予想されるrecord
     Block *blk;                         // 着目するBlock
     Page *page;                         // Blockの内容を扱うPage
 
@@ -83,7 +107,11 @@ void check_logfile(LogManager *lm, int end) {
             record_size = get_string_from_page(page, offset, record);
             record[record_size] = '\0';
 
-            printf("%s\n", record);
+            // 予想されるlog recordの作成
+            sprintf(expected_record, "record%04d", log_num);
+            
+            // 予想されるlog recordとlog fileに保存されていたlog recordの比較
+            assert(strcmp(record, expected_record) == 0);
 
             // 次のoffsetを計算
             offset += record_size + sizeof(int);
@@ -117,7 +145,6 @@ void create_records(LogManager *lm, int end) {
         // recordを作成する
         sprintf(record, "record%04d", i);
 
-        printf("%d\n", i);
         // log recordを追加する
         lm_append_log(lm, record, strlen(record));
     }
