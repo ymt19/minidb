@@ -16,7 +16,8 @@ typedef struct {
     // Pageのデータサイズ
     unsigned int size;
 
-    // Pageのデータ本体
+    // Pageのデータ本体である
+    // 大きさは、FilaManager構造体のdata_sizeメンバ
     unsigned char* data;
 } Page;
 
