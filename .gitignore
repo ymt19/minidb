@@ -4,4 +4,8 @@ tmp*
 a.out
 .vscode
 minidb
-test*
+test_block
+test_file_manager
+test_log_manager
+test_buffer
+test_buffer_manager
