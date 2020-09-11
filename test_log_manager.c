@@ -2,6 +2,8 @@
  * @file    test_log_managerr.c
  * @brief
  * @note
+ * 決められた個数のlog recordを追加し、その個数からlog file内に
+ * いくつのlog recordが書き込まれているのかを予想する。
  * @attention
  * 実行する前に、tmp_test_log_managerというディレクトリを
  * 削除する。
