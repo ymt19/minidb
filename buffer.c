@@ -56,8 +56,7 @@ void buffer_modified(Buffer *buff, int txnum, int lsn) {
 /**
  * @brief   Bufferがpin状態であるかを確認する
  * @param   (buff) Buffer
- * @return  pin状態であれば、1
- * @return  pin状態でないならば、0
+ * @return  pin状態であれば1、pin状態でないならば0
  * @note
  * 
  * @attention
@@ -79,6 +78,7 @@ int buffer_is_pinned(Buffer *buff) {
  * BufferにBlockが割り当てられる前に、そのBufferをflushすることで
  * 以前のBufferの情報はfileに保存される。
  * @attention
+ * この関数で指定されるBufferは、unpin状態であることが前提である。
  */
 void buffer_assign_to_block(Buffer *buff, Block *blk) {
     // 以前のBufferの情報をfileに保存される
@@ -90,7 +90,7 @@ void buffer_assign_to_block(Buffer *buff, Block *blk) {
     // BufferとなるPageに割り当てるBlockを読み込む
     fm_read(buff->fm, buff->blk, buff->page);
 
-    buffer->pins = 0;
+    buff->pins = 0;
 }
 
 /**
