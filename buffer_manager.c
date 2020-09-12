@@ -144,15 +144,13 @@ static int bm_waiting_too_long(BufferManager *bm, struct timespec start_time) {
 }
 
 /**
- * BufferPoolからBlockを割り当てるBufferを探す。
- */
-/**
  * @brief   BufferPoolからBlockを割り当てるBufferを探す
  * @param   (bm) BufferManager
  * @param   (blk) 割り当てるBlock
  * @return  成功した場合割り当てたBuffer、失敗した場合NULL
  * @note
- * 
+ * 無駄なファイルアクセスを減らすために、BufferPool内のunpin状態のBufferを
+ * 探すより先に、pin/unpin関係なく同じBlockを扱うBufferを探す。
  * @attention
  */
 static Buffer* bm_try_to_pin(BufferManager *bm, Block *blk) {
@@ -180,9 +178,6 @@ static Buffer* bm_try_to_pin(BufferManager *bm, Block *blk) {
     return buff;       
 }
 
-/**
- * BufferPoolから指定のbufferを見つける。
- */
 /**
  * @brief   BufferPoolからBlockで指定されたbufferを探す
  * @param   (bm) BufferManager
