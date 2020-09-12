@@ -1,8 +1,9 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "buffer.h"
 
 /**
- * @brief   構造体Bufferを指定した数のメモリ領域を確保する。
+ * @brief   構造体Bufferを指定した個数だけメモリ領域を確保する。
  * @param   (fm) FileManager
  * @param   (lm) LogManager
  * @param   (num_buffs) 確保するBufferの個数
@@ -23,13 +24,13 @@ Buffer *new_Buffers(FileManager *fm, LogManager *lm, int num_buffs) {
     }
 
     for (i = 0; i < num_buffs; i++) {
-        buffs[i]->fm = fm;
-        buffs[i]->lm = lm;
-        buffs[i]->page = new_page(fm->blksize);
-        buffs[i]->blk = NULL;
-        buffs[i]->pins = 0;
-        buffs[i]->txnum = -1;
-        buffs[i]->lsn = -1;
+        buffs[i].fm = fm;
+        buffs[i].lm = lm;
+        buffs[i].page = new_page(fm->data_size);
+        buffs[i].blk = NULL;
+        buffs[i].pins = 0;
+        buffs[i].txnum = -1;
+        buffs[i].lsn = -1;
     }
     return buffs;
 }
@@ -88,7 +89,11 @@ void buffer_assign_to_block(Buffer *buff, Block *blk) {
     buff->blk = blk;
 
     // BufferとなるPageに割り当てるBlockを読み込む
-    fm_read(buff->fm, buff->blk, buff->page);
+    // checksum不一致の場合、システム終了
+    if (fm_read(buff->fm, buff->blk, buff->page) == 0) {
+        fprintf(stderr, "erorr: fm_read(checksum)\n");
+        exit(1);
+    }
 
     buff->pins = 0;
 }
