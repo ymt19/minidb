@@ -22,7 +22,7 @@ static Buffer* bm_find_unpinned_buffer(BufferManager*);
  * @attention
  */
 BufferManager *new_BufferManager(FileManager *fm, LogManager *lm, 
-                                unsigned int num_buffs, unsigned int time_limit) {
+                                int num_buffs, unsigned int time_limit) {
     BufferManager *bm;
     bm = malloc(sizeof(BufferManager));
     if (bm == NULL) {
@@ -47,17 +47,19 @@ BufferManager *new_BufferManager(FileManager *fm, LogManager *lm,
  * @param   (txnum) 指定するtxnum
  * @return
  * @note
- * txnumで指定されたBufferつまりBufferが持つPageの内容をflush
- * する。
+ * txnumで指定されたBufferつまりBufferが持つPageの内容がfileに
+ * 書き込まれることを保証する。
  * @attention
  */
 void bm_flush_all(BufferManager *bm, int txnum) {
     int i;
+    Buffer *buff;
 
     // BufferPool内のBufferを線形探索
-    for (i = 0; i = bm->num_buffs; i++) {
-        if (bm->buffer_pool[i]->txnum == txnum) {
-            buffer_flush(bm->buffer_pool[i]);
+    for (i = 0; i < bm->num_buffs; i++) {
+        buff = &(bm->buffer_pool[i]);
+        if (buff->txnum == txnum) {
+            buffer_flush(buff);
         }
     }
 }
@@ -98,7 +100,7 @@ void bm_unpin(BufferManager *bm, Buffer *buff) {
  * @attention
  */
 Buffer* bm_pin(BufferManager *bm, Block *blk) {
-    Buffer buff;
+    Buffer *buff;
     struct timespec start_time;     // 開始時間
 
     // 現在時間の測定
@@ -107,7 +109,7 @@ Buffer* bm_pin(BufferManager *bm, Block *blk) {
     // pin状態にできるBufferが見つかるか
     // 試行時間がmax_waiting_timeを超えるまで、試行する
     buff = bm_try_to_pin(bm, blk);
-    while (buff == NULL && !waiting_too_long(bm, start_time)) {
+    while (buff == NULL && !bm_waiting_too_long(bm, start_time)) {
         buff = bm_try_to_pin(bm, blk);
     }
 
@@ -135,7 +137,7 @@ static int bm_waiting_too_long(BufferManager *bm, struct timespec start_time) {
     // 秒単位による待ち時間の計測
     waiting_time = (unsigned int)(end_time.tv_sec - start_time.tv_sec);
 
-    if (wating_time > bm->max_wating_time) {
+    if (waiting_time > bm->max_wating_time) {
         return 1;
     }
     return 0;
@@ -192,13 +194,20 @@ static Buffer* bm_try_to_pin(BufferManager *bm, Block *blk) {
  */
 static Buffer* bm_find_same_buffer(BufferManager* bm, Block *blk) {
     int i;
+    Buffer *buff;
 
     // BufferPool内を線形探索
     for (i = 0; i < bm->num_buffs; i++) {
+        buff = &(bm->buffer_pool[i]);
+        
+        // buffにBlockがセットされていない場合
+        if (buff->blk == NULL)
+            continue;
+
         // bufferが同じブロックを持っていたら
         // そのbufferを返す
-        if (is_equal_block(blk, bm->buffer_pool[i])) {
-            return bm->buffer_pool[i];
+        if (block_is_equal(blk, buff->blk)) {
+            return buff;
         }
     }
 
@@ -215,11 +224,14 @@ static Buffer* bm_find_same_buffer(BufferManager* bm, Block *blk) {
  */
 static Buffer* bm_find_unpinned_buffer(BufferManager* bm) {
     int i;
+    Buffer *buff;
 
     // The Native Strategy
     for (i = 0; i < bm->num_buffs; i++) {
-        if (!buffer_is_pinned(bm->buffer_pool[i])) {
-            return bm->buffer_pool[i];
+        buff = &(bm->buffer_pool[i]);
+
+        if (!buffer_is_pinned(buff)) {
+            return buff;
         }
     }
     return NULL;

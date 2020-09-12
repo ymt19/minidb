@@ -21,7 +21,7 @@ typedef struct {
     unsigned int max_wating_time;
 } BufferManager;
 
-BufferManager *new_BufferManager(FileManager*, LogManager*, int);
-void bm_flush_all(int);
+BufferManager *new_BufferManager(FileManager*, LogManager*, int, unsigned int);
+void bm_flush_all(BufferManager*, int);
 void bm_unpin(BufferManager*, Buffer*);
-Buffer* bm_pin(BufferManager*, Block*)
+Buffer* bm_pin(BufferManager*, Block*);
