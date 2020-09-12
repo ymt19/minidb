@@ -56,6 +56,11 @@ FileManager* new_FileManager(char *pathname, unsigned int data_size) {
  * page : 読み込み先のPage
  * @return 成功したら、1
  * @return 失敗したら、0
+ * @note
+ * 
+ * @attention
+ * open(2)のエラー発生時、ファイルが存在しない場合のみ処理を行う。それ以外
+ * のエラーの場合、システムを終了させる。
  */
 int fm_read(FileManager *fm, Block *blk, Page *page) {
     int fd;
@@ -67,6 +72,14 @@ int fm_read(FileManager *fm, Block *blk, Page *page) {
     memcpy(bytes, page->data, fm->data_size);
 
     if ((fd = open(blk->filename, O_RDONLY)) == -1) {
+
+        // ファイルが存在しない場合は、Pageの内容をクリアし
+        // 成功とする、つまり1を返す
+        if (errno == ENOENT) {
+            clear_page(page);
+            return 1;
+        }
+
         perror("open");
         exit(1);
     }
