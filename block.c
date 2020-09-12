@@ -23,6 +23,10 @@ Block* new_block(char *filename, int blk_number) {
     return blk;
 }
 
+void free_block(Block *blk) {
+    free(blk);
+}
+
 /**
  * 指定した2つのBlockが同じBlockであるかどうか。
  * 
@@ -31,7 +35,7 @@ Block* new_block(char *filename, int blk_number) {
  * @return 同じBlockなら、1
  * @return 同じでないBlockなら、0
  */
-int is_equal_block(Block *b1, Block *b2) {
+int block_is_equal(Block *b1, Block *b2) {
     if (b1->blk_number == b2->blk_number &&
         strncmp(b1->filename, b2->filename, strlen(b1->filename)) == 0) {
         return 1;

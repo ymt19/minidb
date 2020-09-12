@@ -1,5 +1,9 @@
 #pragma once
 
+/** @def
+ * このプログラムで扱う全てのファイル名の
+ * 大きさの最大値
+ */
 #define MAX_FILENAME (256)
 
 typedef struct {
@@ -8,4 +12,5 @@ typedef struct {
 } Block;
 
 Block* new_block(char*, int);
-int is_equal_block(Block*, Block*);
+void free_block(Block*);
+int block_is_equal(Block*, Block*);
