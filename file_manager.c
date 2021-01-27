@@ -67,19 +67,18 @@ int fm_read(FileManager *fm, Block *blk, Page *page) {
     unsigned char bytes[fm->data_size];     // Pageの変更前のデータ
     unsigned char chsum;                    // チェックサム
 
+    // fileが存在しない場合やそのBlockがまだfileに書き込まれていない場合は、
+    // 成功を表す値を返し、Pageの内容をクリアする
+    if (blk->blk_number >= fm_file_size(fm, blk->filename)) {
+        clear_page(page);
+        return 1;
+    }
+
     // checksum不一致の場合、Pageを復元するために
     // Pageの変更前のデータを保存しておく
     memcpy(bytes, page->data, fm->data_size);
 
     if ((fd = open(blk->filename, O_RDONLY)) == -1) {
-
-        // ファイルが存在しない場合は、Pageの内容をクリアし
-        // 成功とする、つまり1を返す
-        if (errno == ENOENT) {
-            clear_page(page);
-            return 1;
-        }
-
         perror("open");
         exit(1);
     }

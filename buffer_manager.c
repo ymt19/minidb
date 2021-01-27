@@ -57,7 +57,7 @@ void bm_flush_all(BufferManager *bm, int txnum) {
 
     // BufferPool内のBufferを線形探索
     for (i = 0; i < bm->num_buffs; i++) {
-        buff = &(bm->buffer_pool[i]);
+        buff = &bm->buffer_pool[i];
         if (buff->txnum == txnum) {
             buffer_flush(buff);
         }
@@ -214,14 +214,14 @@ static Buffer* bm_find_same_buffer(BufferManager* bm, Block *blk) {
  * @param   (bm) BufferManager
  * @return  成功した場合そのBuffer、失敗した場合NULL
  * @note
- * The Native Strategyを採用。(他には、FIFO、LRU、CLOCKがある)
+ * The Naive Strategyを採用。(他には、FIFO、LRU、CLOCKがある)
  * @attention
  */
 static Buffer* bm_find_unpinned_buffer(BufferManager* bm) {
     int i;
     Buffer *buff;
 
-    // The Native Strategy
+    // The Naive Strategy
     for (i = 0; i < bm->num_buffs; i++) {
         buff = &(bm->buffer_pool[i]);
 
