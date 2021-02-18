@@ -9,16 +9,16 @@
  * @note
  */
 typedef struct {
-    // Bufferを管理するFileManager
+    // Bufferを管理するFileManagerのポインタ
     FileManager *fm;
 
-    // Bufferを管理するLogManager
+    // Bufferを管理するLogManagerのポインタ
     LogManager *lm;
 
-    // Bufferとして扱うPage
+    // Bufferとして扱うPageのポインタ
     Page *page;
 
-    // Bufferとして扱うPageに相当するBlock
+    // Bufferとして扱うPageに相当するBlockのポインタ
     Block *blk;
 
     // pinされている数

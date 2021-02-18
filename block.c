@@ -18,7 +18,6 @@ Block* new_block(char *filename, int blk_number) {
     }
 
     snprintf(blk->filename, MAX_FILENAME, "%s", filename);
-    blk->filename[MAX_FILENAME-1] = '\0';
     blk->blk_number = blk_number;
     return blk;
 }

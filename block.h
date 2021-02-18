@@ -4,10 +4,10 @@
  * このプログラムで扱う全てのファイル名の
  * 大きさの最大値
  */
-#define MAX_FILENAME (256)
+#define MAX_FILENAME (128)
 
 typedef struct {
-    char filename[MAX_FILENAME];
+    char filename[MAX_FILENAME+1];
     int blk_number;
 } Block;
 

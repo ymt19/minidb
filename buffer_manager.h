@@ -18,7 +18,6 @@ typedef struct {
     int available_buffs;
 
     // 指定のBlockとしてBufferをpin状態にする時の最大待ち時間
-    // ?
     unsigned int max_wating_time;
 } BufferManager;
 

@@ -7,9 +7,9 @@
 #include <sys/stat.h>
 #include "file_manager.h"
 
-static unsigned char checksum(unsigned char*, int);
-static void read_all(int, unsigned char*, unsigned int);
-static void write_all(int, unsigned char*, unsigned int);
+static char checksum(char*, int);
+static void read_all(int, char*, unsigned int);
+static void write_all(int, char*, unsigned int);
 
 /**
  * 構造体FileManagerのメモリを確保し、指定されたディレクトリに移動する。
@@ -65,7 +65,7 @@ FileManager* new_FileManager(char *pathname, unsigned int data_size) {
 int fm_read(FileManager *fm, Block *blk, Page *page) {
     int fd;
     unsigned char bytes[fm->data_size];     // Pageの変更前のデータ
-    unsigned char chsum;                    // チェックサム
+    char chsum;                    // チェックサム
 
     // fileが存在しない場合やそのBlockがまだfileに書き込まれていない場合は、
     // 成功を表す値を返し、Pageの内容をクリアする
@@ -125,7 +125,7 @@ int fm_read(FileManager *fm, Block *blk, Page *page) {
  */
 void fm_write(FileManager *fm, Block *blk, Page *page) {
     int fd;
-    unsigned char chsum;     // 書き込みをしたデータに付けたチェックサム
+    char chsum;     // 書き込みをしたデータに付けたチェックサム
 
     if ((fd = open(blk->filename, O_WRONLY | O_CREAT, 0777)) == -1) {
         perror("open");
@@ -224,9 +224,9 @@ int fm_file_size(FileManager *fm, char *filename) {
  * bytes    : Blockのデータ部
  * @return CheckSumの値
  */
-unsigned char checksum(unsigned char *bytes, int size) {
+static char checksum(char *bytes, int size) {
     int i;
-    unsigned char val;
+    char val;
     
     val = 0;
     for (i = 0; i < size; i++)
@@ -243,7 +243,7 @@ unsigned char checksum(unsigned char *bytes, int size) {
  * bytes    : readするデータ
  * goal_size: readするデータサイズ
  */
-void read_all(int fd, unsigned char *bytes, unsigned int goal_size) {
+static void read_all(int fd, char *bytes, unsigned int goal_size) {
     int rd_size;            // 1回のread(2)で読み込まれたデータサイズ
     int total_rd_size = 0;  // 読み込まれたデータサイズの合計
 
@@ -265,7 +265,7 @@ void read_all(int fd, unsigned char *bytes, unsigned int goal_size) {
  * bytes    : writeするデータ
  * goal_size: writeするデータサイズ
  */
-void write_all(int fd, unsigned char *bytes, unsigned int goal_size) {
+static void write_all(int fd, char *bytes, unsigned int goal_size) {
     int wr_size;             // 1回のwrite(2)で書き込まれたデータサイズ
     int total_wr_size = 0;   // 書き込まれたデータサイズの合計
 

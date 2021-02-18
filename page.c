@@ -31,6 +31,24 @@ Page* new_page(int data_size) {
     return page;
 }
 
+Page *new_page_bytes(char *bytes, int data_size) {
+    Page *page = malloc(sizeof(Page));
+    if (page == NULL) {
+        return NULL;
+    }
+
+    page->size = data_size;
+
+    page->data = malloc(data_size);
+    if (page->data == NULL) {
+        free(page);
+        return NULL;
+    }
+
+    memcpy(page->data, bytes, data_size);
+    return page;
+}
+
 /**
  * @brief   指定するPageのデータの内容を消去する。
  * @param   (page) 指定するPage

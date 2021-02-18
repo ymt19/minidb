@@ -50,8 +50,8 @@ Buffer *new_Buffers(FileManager *fm, LogManager *lm, int num_buffs) {
  */
 void buffer_modified(Buffer *buff, int txnum, int lsn) {
     buff->txnum = txnum;
-    buff->lsn = lsn;
-    // if (lsn >= 0) buff->lsn = lsn;
+    // buff->lsn = lsn;
+    if (lsn >= 0) buff->lsn = lsn;
 }
 
 /**
@@ -109,11 +109,14 @@ void buffer_assign_to_block(Buffer *buff, Block *blk) {
  * @attention
  * bufferのlsnが更新されている必要があるため、buffer_modified()を
  * この関数の前に呼び出す必要がある。
+ * undo-only loggingのため、bufferをflushする前に、log fileをflushする
+ * 必要がある。
  */
 void buffer_flush(Buffer *buff) {
     // bufferの内容がtxによって変更されている場合
     if (buff->txnum >= 0) {
         // lsnまでのlogをlog fileに書き込む
+        // undo-only loggingのため、bufferをflushする前に、log fileをflushする
         lm_flush_log_to_lsn(buff->lm, buff->lsn);
 
         // bufferに相当するPageをfileに書き込む

@@ -43,7 +43,7 @@ BufferManager *new_BufferManager(FileManager *fm, LogManager *lm,
 
 /**
  * @brief   BufferPoolのBufferのうちtxnumで指定されたBufferを
- *          全てflushする
+ *          全てflushする(先にlsnまでのlog recordがflushされる)
  * @param   (txnum) 指定するtxnum
  * @return
  * @note
