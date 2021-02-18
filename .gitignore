@@ -9,3 +9,6 @@ test_file_manager
 test_log_manager
 test_buffer
 test_buffer_manager
+test_buffer_list
+test_recovery_manager
+test_int_list
