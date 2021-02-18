@@ -7,6 +7,14 @@ static int get_next_txnum();
 
 static int next_txnum = 0;  // 発行した中で最新のtxnum
 
+/**
+ * @brief   構造体Transactionのメモリを動的確保し、そのstart logを発行する
+ * @param   fm file manager
+ * @param   lm log manager
+ * @param   bm buffer manager
+ * @return  確保した構造体Transactionを指すポインタ
+ * @note
+ */
 Transaction *new_Transaction(FileManager *fm, LogManager *lm, BufferManager *bm) {
     Transaction *tx;
 
@@ -23,6 +31,12 @@ Transaction *new_Transaction(FileManager *fm, LogManager *lm, BufferManager *bm)
     return tx;
 }
 
+/**
+ * @brief   トランザクションをcommitする
+ * @param   tx commitするトランザクション
+ * @return
+ * @note
+ */
 void tx_commit(Transaction *tx) {
     rm_commit(tx);
     /**
@@ -34,6 +48,12 @@ void tx_commit(Transaction *tx) {
      */
 }
 
+/**
+ * @brief   トランザクションをrollbackする
+ * @param   tx rollbackするトランザクション
+ * @return
+ * @note
+ */
 void tx_rollback(Transaction *tx) {
     rm_rollback(tx);
     /**
@@ -46,7 +66,12 @@ void tx_rollback(Transaction *tx) {
 }
 
 /**
- * どの状況で呼ばれるか
+ * @brief   recoverする
+ * @param   tx recover時に使用されるトランザクション
+ * @return
+ * @note
+ * @todo
+ * どのような状況でこの関数が呼ばれるのか
  */
 void tx_recover(Transaction *tx) {
     bm_flush_all(tx->bm, tx->txnum); // どの状況で呼ばれるか
@@ -54,24 +79,38 @@ void tx_recover(Transaction *tx) {
 }
 
 /**
- * @todo 名称
+ * @brief   指定したトランザクションでblockをpinする
+ * @param   tx pinするトランザクション
+ * @param   blk pinされるブロック
+ * @return
+ * @note
  */
 void tx_pin(Transaction *tx, Block *blk) {
-    // bm_pin()
-    // tx->bufflist = pin(tx->bufflist, tx->bm, blk); // bufflist add
-
     Buffer *buff = bm_pin(tx->bm, blk);
     add_BufferList(&(tx->bufflist), buff);
 }
 
+/**
+ * @brief   指定したトランザクションでblockをunpinする
+ * @param   tx unpinするトランザクション
+ * @param   blk unpinされるブロック
+ * @return
+ * @note
+ */
 void tx_unpin(Transaction *tx, Block *blk) {
-    // tx->bufflist = unpin(tx->bufflist, tx->bm, blk);
-
     Buffer *buff = get_buffer_from_BufferList(tx->bufflist, blk);
     bm_unpin(tx->bm, buff);
     remove_BufferList(&(tx->bufflist), buff);
 }
 
+/**
+ * @brief   トランザクションによって指定の位置の数値を取得する
+ * @param   tx 数値を取得するトランザクション
+ * @param   blk 数値があるブロック
+ * @param   offset 数値があるブロックのオフセット
+ * @return  取得した数値
+ * @note
+ */
 int tx_get_int(Transaction *tx, Block *blk, int offset) {
     /**
      * concurrency manager slock(blk)
@@ -86,6 +125,15 @@ int tx_get_int(Transaction *tx, Block *blk, int offset) {
     return val;
 }
 
+/**
+ * @brief   指定のトランザクションによって指定の位置の文字列を取得する
+ * @param   tx 文字列を取得するトランザクション
+ * @param   blk 文字列があるブロック
+ * @param   offset 文字列があるブロックのオフセット
+ * @param   val 取得した文字列を格納するメモリを指すポインタ
+ * @return  取得した文字列のサイズ
+ * @note
+ */
 int tx_get_string(Transaction *tx, Block *blk, int offset, char *val) {
     /**
      * concurrency manager slock(blk)
@@ -101,7 +149,16 @@ int tx_get_string(Transaction *tx, Block *blk, int offset, char *val) {
 }
 
 /**
- * is_rollback <= write_to_log
+ * @brief   指定のトランザクションによって指定の位置に数値を書き込む
+ * @param   tx 数値を書き込むトランザクション
+ * @param   blk 数値を書き込むブロック
+ * @param   offset 数値を書き込むブロックのオフセット
+ * @param   val 書き込む数値
+ * @param   is_rollback_recover この関数を呼び出すトランザクションがrollback/recoverによるものかどうか
+ * @return
+ * @note
+ * ファイルへの書き込みは保証しない。
+ * is_rollback_recoverが真の場合、このset intによるlog recordは発行されない。
  */
 void tx_set_int(Transaction *tx, Block *blk, int offset, int val, int is_rollback_or_recover) {
     /**
@@ -121,6 +178,19 @@ void tx_set_int(Transaction *tx, Block *blk, int offset, int val, int is_rollbac
     buffer_modified(buff, tx->txnum, lsn);
 }
 
+/**
+ * @brief   指定のトランザクションによって指定の位置に文字列を書き込む
+ * @param   tx 文字列を書き込むトランザクション
+ * @param   blk 文字列を書き込むブロック
+ * @param   offset 文字列を書き込むブロックのオフセット
+ * @param   val 書き込む文字列
+ * @param   val_size 書き込む文字列のサイズ
+ * @param   is_rollback_recover この関数を呼び出すトランザクションがrollback/recoverによるものかどうか
+ * @return
+ * @note
+ * ファイルへの書き込みは保証しない。
+ * is_rollback_recoverが真の場合、このset stringによるlog recordは発行されない。
+ */
 void tx_set_string(Transaction *tx, Block *blk, int offset, char *val, int val_size, int is_rollback_or_recover) {
     /**
      * concurrency manager xlock(blk)
@@ -139,6 +209,12 @@ void tx_set_string(Transaction *tx, Block *blk, int offset, char *val, int val_s
     buffer_modified(buff, tx->txnum, lsn);
 }
 
+/**
+ * @brief   
+ * @param
+ * @return
+ * @note
+ */
 int tx_filesize(Transaction *tx, char *filename, int filename_size) {
     /**
      * Block *dummy = new_block(filename, -1);
@@ -148,6 +224,12 @@ int tx_filesize(Transaction *tx, char *filename, int filename_size) {
     return size;
 }
 
+/**
+ * @brief
+ * @param
+ * @return
+ * @note
+ */
 Block *tx_append_blk(Transaction *tx, char *filename, int filename_size) {
     /**
      * Block *dummy = new_block(filename, -1);
@@ -157,6 +239,12 @@ Block *tx_append_blk(Transaction *tx, char *filename, int filename_size) {
     return newblk;
 }
 
+/**
+ * @brief
+ * @param
+ * @return
+ * @note
+ */
 static int get_next_txnum() {
     next_txnum++;
     return next_txnum;

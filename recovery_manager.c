@@ -88,9 +88,6 @@ int rm_set_int(Transaction *tx, Buffer *buff, int offset) {
  * @return
  * @note
  * recordを発行するのみ。
- * @attention 
- * newvalのサイズ管理
- * set前のサイズより大きなnewvalの場合の処理
  */
 int rm_set_string(Transaction *tx, Buffer *buff, int offset) {
     char oldval[MAX_STRING_SIZE + 1];
@@ -100,14 +97,16 @@ int rm_set_string(Transaction *tx, Buffer *buff, int offset) {
 }
 
 /**
- * @brief   指定されたトランザクションをrollbackする
+ * @brief   logを最後尾からスキャンし、指定されたトランザクションをundoする
  * @param   tx rollbackするトランザクション
  * @param   fm file manager
  * @param   lm log manager
  * @return
  * @note
  * log recordの調査に失敗した場合、プログラムを終了する。
- * @attention
+ * buffer poolが足りなくなる場合は想定しない。
+ * @todo
+ * 関数の細分化
  */
 static void rollback(Transaction *tx, FileManager *fm, LogManager *lm) {
     Block *blk = new_block(lm->log_filename, lm->current_blk->blk_number);
@@ -164,7 +163,15 @@ static void rollback(Transaction *tx, FileManager *fm, LogManager *lm) {
 }
 
 /**
- * buffer poolが足りなくなる場合は想定しない
+ * @brief   logを最後尾からスキャンし、未完了のトランザクションの変更をundoする
+ * @param   tx undoを行うトランザクション
+ * @param   fm file manager
+ * @param   lm log manager
+ * @return
+ * @note
+ * buffer poolが足りなくなる場合は想定しない。
+ * @todo
+ * 関数の細分化
  */
 static void recover(Transaction *tx, FileManager *fm, LogManager *lm) {
     Block *blk = new_block(lm->log_filename, lm->current_blk->blk_number);
