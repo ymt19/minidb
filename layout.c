@@ -30,7 +30,7 @@ Layout *new_layout(Schema *sch) {
 }
 
 /**
- * @brief   fieldnameのrecord pageのoffsetを得る
+ * @brief   fieldのrecord内でのoffsetを得る
  * @param   layout fieldnameのfieldを持つlayout
  * @param   fieldname offsetを得るfield名
  * @return  fieldnameのoffset

@@ -154,7 +154,7 @@ int tx_get_string(Transaction *tx, Block *blk, int offset, char *val) {
  * @param   blk 数値を書き込むブロック
  * @param   offset 数値を書き込むブロックのオフセット
  * @param   val 書き込む数値
- * @param   is_rollback_recover この関数を呼び出すトランザクションがrollback/recoverによるものかどうか
+ * @param   is_rollback_recover この関数を呼び出すトランザクションがrollback/recoverによるものなら真
  * @return
  * @note
  * ファイルへの書き込みは保証しない。
@@ -185,7 +185,7 @@ void tx_set_int(Transaction *tx, Block *blk, int offset, int val, int is_rollbac
  * @param   offset 文字列を書き込むブロックのオフセット
  * @param   val 書き込む文字列
  * @param   val_size 書き込む文字列のサイズ
- * @param   is_rollback_recover この関数を呼び出すトランザクションがrollback/recoverによるものかどうか
+ * @param   is_rollback_recover この関数を呼び出すトランザクションがrollback/recoverによるものなら真
  * @return
  * @note
  * ファイルへの書き込みは保証しない。
