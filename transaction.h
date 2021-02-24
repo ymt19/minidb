@@ -23,5 +23,5 @@ int tx_get_int(Transaction*, Block*, int);
 int tx_get_string(Transaction*, Block*, int, char*);
 void tx_set_int(Transaction*, Block*, int, int, int);
 void tx_set_string(Transaction*, Block*, int, char*, int, int);
-int tx_filesize(Transaction*, char*, int);
-Block *tx_append_blk(Transaction*, char*, int);
+int tx_filesize(Transaction*, char*);
+Block *tx_append_blk(Transaction*, char*);

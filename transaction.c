@@ -215,7 +215,7 @@ void tx_set_string(Transaction *tx, Block *blk, int offset, char *val, int val_s
  * @return
  * @note
  */
-int tx_filesize(Transaction *tx, char *filename, int filename_size) {
+int tx_filesize(Transaction *tx, char *filename) {
     /**
      * Block *dummy = new_block(filename, -1);
      * concurrency manager slock(dummy)
@@ -230,7 +230,7 @@ int tx_filesize(Transaction *tx, char *filename, int filename_size) {
  * @return
  * @note
  */
-Block *tx_append_blk(Transaction *tx, char *filename, int filename_size) {
+Block *tx_append_blk(Transaction *tx, char *filename) {
     /**
      * Block *dummy = new_block(filename, -1);
      * concurrency manager xlock(dummy)
