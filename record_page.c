@@ -24,8 +24,22 @@ RecordPage *new_RecordPage(Transaction *tx, Block *blk, Layout *layout) {
     rp->tx = tx;
     rp->blk = blk;
     rp->layout = layout;
-
+    tx_pin(rp->tx, blk);
     return rp;
+}
+
+/**
+ * @brief   RecordPageのメモリを解放する
+ * @param   rp 解放するRecordPageを指すメモリのポインタ，NULLで返す
+ * @return
+ * @note
+ * rpがpinしているblockをunpinする．
+ */
+void free_RecordPage(RecordPage **rp) {
+    RecordPage *target_rp = *rp;
+    tx_unpin(target_rp->blk, target_rp->blk);
+    free(target_rp);
+    target_rp = NULL;
 }
 
 /**
@@ -39,7 +53,7 @@ void init_RecordPage(RecordPage *rp) {
     int slot = 0;
     // slotが有効な間、それぞれのfieldを初期化する
     while (is_valid_slot(rp, slot)) {
-        tx_set_int(rp->tx, rp->blk, get_offset(rp, slot), EMPTY, 1);    // logに書き込まない
+        tx_set_int(rp->tx, rp->blk, get_offset(rp, slot), EMPTY, 1);
         Field *field = rp->layout->schema->fields;
 
         // 現在のslotの全てのfieldを初期化する
@@ -47,9 +61,9 @@ void init_RecordPage(RecordPage *rp) {
             int fld_pos = get_offset(rp, slot) + get_offset_layout(rp->layout, field->fieldname);
 
             if (field->type == FLD_INTEGER) {
-                tx_set_int(rp->tx, rp->blk, fld_pos, 0, 1);     // logに書き込まない
+                tx_set_int(rp->tx, rp->blk, fld_pos, 0, 1);
             } else if (field->type == FLD_VARCHAR) {
-                tx_set_string(rp->tx, rp->blk, fld_pos, "", 0, 1); // logに書き込まない
+                tx_set_string(rp->tx, rp->blk, fld_pos, "", 0, 1);
             }
         }
         slot++;
@@ -110,6 +124,8 @@ void set_int_to_RecordPage(RecordPage *rp, int slot, char *fieldname, int val) {
  * @return  取得した数値
  * @note
  * fieldの型が文字列であった場合を想定しない。
+ * 
+ * val_sizeは、MAX_STRING_SIZEより小さい値でないといけない。それ以外の場合は想定しない。
  */
 void set_string_to_RecordPage(RecordPage *rp, int slot, char *fieldname, char *val, int val_size) {
     int fld_pos = get_offset(rp, slot) + get_offset_layout(rp->layout, fieldname);
@@ -123,7 +139,7 @@ void set_string_to_RecordPage(RecordPage *rp, int slot, char *fieldname, char *v
  * @return
  * @note
  */
-void delete_record_RecordPage(RecordPage *rp, int slot) {
+void delete_slot_RecordPage(RecordPage *rp, int slot) {
     set_flag(rp, slot, EMPTY);
 }
 
@@ -139,7 +155,7 @@ int next_after_slot_RecordPage(RecordPage *rp, int slot) {
 }
 
 /**
- * @brief   指定のslot以降のflagがEMPTYな最初のslotのflagをUSEDに変更し、得る
+ * @brief   指定のslot以降のflagがEMPTYな最初のslotのflagをUSEDに変更し、そのslotを得る
  * @param   rp RecodPage
  * @param   slot 指定するslot
  * @return  見つけたslot、見つからなかったら-1

@@ -66,3 +66,14 @@ void add_schema_field_to_schema(Schema *copy, char *fieldname, Schema *original)
 void add_all_schema_field_to_schema(Schema *copy, Schema *original) {
     add_all_field(&(copy->fields), original->fields);
 }
+
+/**
+ * @brief   schemaが指定のfield名のfieldを持つか確認する
+ * @param   schema schema
+ * @param   fieldname 確認するfield名
+ * @return  存在するなら1、存在しないなら0
+ * @note
+ */
+int has_field_schema(Schema *schema, char *fieldname) {
+
+}

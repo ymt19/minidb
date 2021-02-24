@@ -18,11 +18,12 @@ struct RecordPage {
 typedef struct RecordPage RecordPage;
 
 RecordPage *new_RecordPage(Transaction *tx, Block *blk, Layout *layout);
+void free_RecordPage(RecordPage **rp);
 void init_RecordPage(RecordPage *rp);
 int get_int_from_RecordPage(RecordPage *rp, int slot, char *fieldname);
 int get_string_from_RecordPage(RecordPage *rp, int slot, char *fieldname, char *val);
 void set_int_to_RecordPage(RecordPage *rp, int slot, char *fieldname, int val);
 void set_string_to_RecordPage(RecordPage *rp, int slot, char *fieldname, char *val, int val_size);
-void delete_record_RecordPage(RecordPage *rp, int slot);
+void delete_slot_RecordPage(RecordPage *rp, int slot);
 int next_after_slot_RecordPage(RecordPage *rp, int slot);
 int insert_after_slot_RecordPage(RecordPage *rp, int slot);
