@@ -4,7 +4,7 @@
 
 /**
  * @struct
- * @brief   keyに文字列、valueに数値を持つlistのノード
+ * @brief   文字列、数値を持つlistのノード
  */
 struct StringIntList {
     char str[MAX_STRING_SIZE];
