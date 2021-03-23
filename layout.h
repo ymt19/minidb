@@ -22,4 +22,6 @@ typedef struct Layout Layout;
 
 
 Layout *new_layout(Schema *sch);
+Layout *new_layout_already(Schema *sch, StringIntList *offsets, int slotsize);
+void free_layout(Layout *layout);
 int get_offset_layout(Layout *layout, char *fieldname);

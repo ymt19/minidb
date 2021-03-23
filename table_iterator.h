@@ -3,6 +3,7 @@
 #include "transaction.h"
 #include "layout.h"
 #include "record_page.h"
+#include "record_id.h"
 
 
 /**
@@ -35,16 +36,16 @@ struct TableIterator {
 typedef struct TableIterator TableIterator;
 
 
-TableIterator *new_TableIterator(Transaction *tx, Layout *layout, char *tablename, int tablename_size);
+TableIterator *new_TableIterator(Transaction *tx, Layout *layout, char *tablename);
 void free_TableIterator(TableIterator **tblitr);
-void move_first_block_TableIterator(TableIterator *tblitr);
-int is_next_record_TableIterator(TableIterator *tblitr);
-int get_int_from_TableIterator(TableIterator *tblitr, char *fieldname);
-int get_string_from_TableIterator(TableIterator *tblitr, char *fieldname, char *val);
-int has_field_TableIterator(TableIterator *tblitr, char *fieldname);
-void set_int_to_record_TableIterator(TableIterator *tblitr, char *fieldname, int val);
-void set_string_to_record_TableIterator(TableIterator *tblitr, char *fieldname, char *val, int val_size);
-void insert_TableIterator(TableIterator *tblitr);
-void delete_slot_TableIterator(TableIterator *tblitr);
-void move_to_rid_TableIterator(TableIterator *tblitr, RecordID rid);
-RecordID get_rid_TableIterator(TableIterator *tblitr);
+void tblitr_move_first_block(TableIterator *tblitr);
+int tblitr_go_to_next_record(TableIterator *tblitr);
+int tblitr_get_int_from_current_slot(TableIterator *tblitr, char *fieldname);
+int tblitr_get_string_from_current_slot(TableIterator *tblitr, char *fieldname, char *val);
+// int tblitr_has_field(TableIterator *tblitr, char *fieldname);
+void tblitr_set_int_to_current_slot(TableIterator *tblitr, char *fieldname, int val);
+void tblitr_set_string_to_current_slot(TableIterator *tblitr, char *fieldname, char *val, int val_size);
+void tblitr_insert(TableIterator *tblitr);
+void tblitr_delete_slot(TableIterator *tblitr);
+void tblitr_move_to_rid(TableIterator *tblitr, RecordID rid);
+RecordID tblitr_get_rid(TableIterator *tblitr);

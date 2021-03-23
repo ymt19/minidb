@@ -4,7 +4,6 @@
 void set_RecordID(RecordID *rid, int blknum, int slot) {
     rid->blknum = blknum;
     rid->slot = slot;
-    return rid;
 }
 
 int is_equal_RID(RecordID rid0, RecordID rid1) {

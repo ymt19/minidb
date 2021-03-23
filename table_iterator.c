@@ -1,4 +1,6 @@
+#include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include "table_iterator.h"
 #include "record_id.h"
@@ -17,14 +19,15 @@ static int at_last_block(TableIterator *tblitr);
  * @param   tablename_size table名の文字列長
  * @return
  * @note
- * tableの情報を持つファイルをtablename+".tblitr"として保存するため、
- * filenameのサイズ制限とは別の、tablenameのサイズ制限がある。
+ * tableの情報を持つファイルをtablename+".tbl"として保存するため、
+ * filenameのサイズ制限とは別のtablenameのサイズ制限がある。
+ * 
+ * table iteratorを使用するのは，table managerである．table managerでは，tablenameが
+ * MAX_TABLENAME_SIZEの16文字までと制限されているため，tablenameの文字数が
+ * MAX_FILENAME(128) - 4より大きくなることはない．
  */
-TableIterator *new_TableIterator(Transaction *tx, Layout *layout, char *tablename, int tablename_size) {
-    // ".tblitr"を含めたファイル名がMAX_FILENAMEより大きい場合
-    if (tablename_size + 4 > MAX_FILENAME) {
-        return NULL;
-    }
+TableIterator *new_TableIterator(Transaction *tx, Layout *layout, char *tablename) {
+    assert(strlen(tablename) <= MAX_FILENAME - 4);
 
     TableIterator *tblitr = malloc(sizeof(TableIterator));
     if (tblitr == NULL) {
@@ -33,12 +36,14 @@ TableIterator *new_TableIterator(Transaction *tx, Layout *layout, char *tablenam
 
     tblitr->tx = tx;
     tblitr->layout = layout;
-    snprintf(tblitr->filename, MAX_FILENAME, "%s.tblitr", tablename);
+    snprintf(tblitr->filename, MAX_FILENAME, "%s.tbl", tablename);
     if (tx_filesize(tblitr->tx, tblitr->filename) == 0) { // fileが存在しない場合
         move_to_new_block(tblitr); // block number0を作り、それに移動する
     } else {
         move_to_block(tblitr, 0);  // block number0に移動する
     }
+
+    return tblitr;
 }
 
 /**
@@ -53,7 +58,7 @@ void free_TableIterator(TableIterator **tblitr) {
         free_RecordPage(&(target->rp));
     }
     free(target);
-    target = NULL;
+    *tblitr = NULL;
 }
 
 /**
@@ -62,7 +67,7 @@ void free_TableIterator(TableIterator **tblitr) {
  * @return
  * @note
  */
-void move_first_block_TableIterator(TableIterator *tblitr) {
+void tblitr_move_first_block(TableIterator *tblitr) {
     move_to_block(tblitr, 0);
 }
 
@@ -71,8 +76,9 @@ void move_first_block_TableIterator(TableIterator *tblitr) {
  * @param   tblitr TableIterator
  * @return  USEDなslotがあれば1、存在しないなら0
  * @note
+ * @todo
  */
-int is_next_record_TableIterator(TableIterator *tblitr) {
+int tblitr_go_to_next_record(TableIterator *tblitr) {
     // 現在のRecordPage内でのcurrent slot以降のUSEDなslotへ移動
     tblitr->current_slot =  next_after_slot_RecordPage(tblitr->rp, tblitr->current_slot);
 
@@ -99,7 +105,7 @@ int is_next_record_TableIterator(TableIterator *tblitr) {
  * @todo
  * assert
  */
-int get_int_from_TableIterator(TableIterator *tblitr, char *fieldname) {
+int tblitr_get_int_from_current_slot(TableIterator *tblitr, char *fieldname) {
     return get_int_from_RecordPage(tblitr->rp, tblitr->current_slot, fieldname);
 }
 
@@ -114,20 +120,20 @@ int get_int_from_TableIterator(TableIterator *tblitr, char *fieldname) {
  * @todo
  * const char* fieldname
  */
-int get_string_from_TableIterator(TableIterator *tblitr, char *fieldname, char *val) {
+int tblitr_get_string_from_current_slot(TableIterator *tblitr, char *fieldname, char *val) {
     return get_string_from_RecordPage(tblitr->rp, tblitr->current_slot, fieldname, val);
 }
 
-/**
- * @brief   Tableに指定のfieldが存在するか確認する
- * @param   tblitr table iterator
- * @param   fieldname 確認するfield名
- * @return  存在するなら1、存在しないなら0
- * @note
- */
-int has_field_TableIterator(TableIterator *tblitr, char *fieldname) {
-    return has_field_schema(tblitr->layout->schema, fieldname);
-}
+// /**
+//  * @brief   Tableに指定のfieldが存在するか確認する
+//  * @param   tblitr table iterator
+//  * @param   fieldname 確認するfield名
+//  * @return  存在するなら1、存在しないなら0
+//  * @note
+//  */
+// int tblitr_has_field(TableIterator *tblitr, char *fieldname) {
+//     return has_field_schema(tblitr->layout->schema, fieldname);
+// }
 
 /**
  * @brief   Tableのcurrent slotのfieldに数値を書き込む
@@ -139,7 +145,7 @@ int has_field_TableIterator(TableIterator *tblitr, char *fieldname) {
  * fieldnameのfieldは、INTEGER型であり、そのTableIteratorのfieldでなければならない。それ以外の
  * fieldである場合は想定しない。
  */
-void set_int_to_record_TableIterator(TableIterator *tblitr, char *fieldname, int val) {
+void tblitr_set_int_to_current_slot(TableIterator *tblitr, char *fieldname, int val) {
     set_int_to_RecordPage(tblitr->rp, tblitr->current_slot, fieldname, val);
 }
 
@@ -156,7 +162,7 @@ void set_int_to_record_TableIterator(TableIterator *tblitr, char *fieldname, int
  * 
  * val_sizeは、MAX_STRING_SIZEより小さい値でないといけない。それ以外の場合は想定しない。
  */
-void set_string_to_record_TableIterator(TableIterator *tblitr, char *fieldname, char *val, int val_size) {
+void tblitr_set_string_to_current_slot(TableIterator *tblitr, char *fieldname, char *val, int val_size) {
     set_string_to_RecordPage(tblitr->rp, tblitr->current_slot, fieldname, val, val_size);
 }
 
@@ -168,7 +174,7 @@ void set_string_to_record_TableIterator(TableIterator *tblitr, char *fieldname, 
  * もしcurrent slot以降の存在するBlockの全てのslotがUSEDなslotであった場合、新しいBlockを
  * 追加する。
  */
-void insert_TableIterator(TableIterator *tblitr) {
+void tblitr_insert(TableIterator *tblitr) {
     tblitr->current_slot = insert_after_slot_RecordPage(tblitr->rp, tblitr->current_slot);
     while (tblitr->current_slot < 0) {
         if (at_last_block(tblitr)) {
@@ -186,7 +192,7 @@ void insert_TableIterator(TableIterator *tblitr) {
  * @return
  * @note
  */
-void delete_slot_TableIterator(TableIterator *tblitr) {
+void tblitr_delete_slot(TableIterator *tblitr) {
     delete_slot_RecordPage(tblitr->rp, tblitr->current_slot);
 }
 
@@ -197,7 +203,7 @@ void delete_slot_TableIterator(TableIterator *tblitr) {
  * @return
  * @note
  */
-void move_to_rid_TableIterator(TableIterator *tblitr, RecordID rid) {
+void tblitr_move_to_rid(TableIterator *tblitr, RecordID rid) {
     if (tblitr->rp->blk->blk_number != rid.blknum) {
         if (tblitr->rp != NULL) {
             free_RecordPage(&(tblitr->rp));
@@ -208,17 +214,17 @@ void move_to_rid_TableIterator(TableIterator *tblitr, RecordID rid) {
     tblitr->current_slot = rid.slot;
 }
 
-/**
- * @brief   current slotのRecordIDを取得する
- * @param
- * @return
- * @note
- * 
- * @attention
- */
-RecordID get_rid_TableIterator(TableIterator *tblitr) {
+// /**
+//  * @brief   current slotのRecordIDを取得する
+//  * @param
+//  * @return
+//  * @note
+//  * 
+//  * @attention
+//  */
+// RecordID tblitr_get_rid(TableIterator *tblitr) {
 
-}
+// }
 
 /**
  * @brief   指定のblock numberのBlockにcurrent slotを移動する

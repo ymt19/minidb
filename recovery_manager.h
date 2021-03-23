@@ -1,6 +1,5 @@
 #pragma once
 
-#include "recovery_manager.h"
 #include "transaction.h"
 
 void rm_start(Transaction*);

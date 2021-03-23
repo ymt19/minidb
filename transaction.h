@@ -1,6 +1,5 @@
 #pragma once
 
-#include "transaction.h"
 #include "buffer_manager.h"
 #include "log_manager.h"
 #include "buffer_list.h"

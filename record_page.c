@@ -1,4 +1,6 @@
+#include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "record_page.h"
 #include "field_list.h"
 
@@ -37,9 +39,9 @@ RecordPage *new_RecordPage(Transaction *tx, Block *blk, Layout *layout) {
  */
 void free_RecordPage(RecordPage **rp) {
     RecordPage *target_rp = *rp;
-    tx_unpin(target_rp->blk, target_rp->blk);
+    tx_unpin(target_rp->tx, target_rp->blk);
     free(target_rp);
-    target_rp = NULL;
+    *rp = NULL;
 }
 
 /**
@@ -59,12 +61,15 @@ void init_RecordPage(RecordPage *rp) {
         // 現在のslotの全てのfieldを初期化する
         while (field != NULL) {
             int fld_pos = get_offset(rp, slot) + get_offset_layout(rp->layout, field->fieldname);
+            assert(-1 != get_offset_layout(rp->layout, field->fieldname));
 
             if (field->type == FLD_INTEGER) {
                 tx_set_int(rp->tx, rp->blk, fld_pos, 0, 1);
             } else if (field->type == FLD_VARCHAR) {
                 tx_set_string(rp->tx, rp->blk, fld_pos, "", 0, 1);
             }
+
+            field = field->next;
         }
         slot++;
     }

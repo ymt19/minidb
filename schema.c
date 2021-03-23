@@ -19,6 +19,15 @@ Schema *new_schema() {
     return sch;
 }
 
+void free_schema(Schema *sch) {
+    // free_field(sch->fields);    // 未実装
+    free(sch);
+}
+
+void add_field_to_schema(Schema *sch, char *fldname, int type, int length) {
+    add_field(&(sch->fields), fldname, type, length);
+}
+
 /**
  * @brief   指定のschemaにINTEGERのfieldを追加する
  * @param   sch 指定のschema
@@ -67,13 +76,13 @@ void add_all_schema_field_to_schema(Schema *copy, Schema *original) {
     add_all_field(&(copy->fields), original->fields);
 }
 
-/**
- * @brief   schemaが指定のfield名のfieldを持つか確認する
- * @param   schema schema
- * @param   fieldname 確認するfield名
- * @return  存在するなら1、存在しないなら0
- * @note
- */
-int has_field_schema(Schema *schema, char *fieldname) {
+// /**
+//  * @brief   schemaが指定のfield名のfieldを持つか確認する
+//  * @param   schema schema
+//  * @param   fieldname 確認するfield名
+//  * @return  存在するなら1、存在しないなら0
+//  * @note
+//  */
+// int has_field_schema(Schema *schema, char *fieldname) {
 
-}
+// }

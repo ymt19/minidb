@@ -29,6 +29,25 @@ Layout *new_layout(Schema *sch) {
     return layout;
 }
 
+Layout *new_layout_already(Schema *sch, StringIntList *offsets, int slotsize) {
+    Layout *layout = malloc(sizeof(Schema));
+    if (layout == NULL) {
+        return NULL;
+    }
+
+    layout->schema = sch;
+    layout->offsets = offsets;
+    layout->slotsize = slotsize;
+
+    return layout;
+}
+
+void free_layout(Layout *layout) {
+    free_schema(layout->schema);
+    // free_StringIntList(layout->offsets); // 未実装  
+    free(layout);
+}
+
 /**
  * @brief   fieldのrecord内でのoffsetを得る
  * @param   layout fieldnameのfieldを持つlayout
@@ -41,5 +60,9 @@ Layout *new_layout(Schema *sch) {
  */
 int get_offset_layout(Layout *layout, char *fieldname) {
     StringIntList *node = search_from_string_StringIntList(layout->offsets, fieldname);
-    return node->num;
+    if (node == NULL) {
+        return -1;
+    } else {
+        return node->num;
+    }
 }
