@@ -1,11 +1,12 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "layout.h"
 #include "schema.h"
 #include "field_list.h"
 #include "string_int_list.h"
 
 Layout *new_layout(Schema *sch) {
-    Layout *layout = malloc(sizeof(Schema));
+    Layout *layout = malloc(sizeof(Layout));
     if (layout == NULL) {
         return NULL;
     }
@@ -30,7 +31,7 @@ Layout *new_layout(Schema *sch) {
 }
 
 Layout *new_layout_already(Schema *sch, StringIntList *offsets, int slotsize) {
-    Layout *layout = malloc(sizeof(Schema));
+    Layout *layout = malloc(sizeof(Layout));
     if (layout == NULL) {
         return NULL;
     }

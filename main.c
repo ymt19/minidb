@@ -29,6 +29,8 @@ Schema *sch;
 void update_int(Transaction *tx, char *set_column, int target_student_id, int val);
 void update_varchar(Transaction *tx, char *set_column, int target_student_id, char *val);
 void insert(Transaction *tx, int student_id, char *name, int major_id, int admission_year);
+void commit(Transaction *tx);
+void rollback(Transaction *tx);
 void print_table(Transaction *tx);
 
 int main() {
@@ -42,33 +44,40 @@ int main() {
     tm_save_TableManager(tm, tm_save);
     tx_commit(tm_save);
 
-    // dbの変更を行うトランザクションの作成
-    Transaction *tx = new_Transaction(fm, lm, bm);
-
     // STUDENTテーブルの作成
+    Transaction *tx_make_table = new_Transaction(fm, lm, bm);
     sch = new_schema();
     add_int_field_to_schema(sch, COLUMN_STUDENTID);
     add_string_field_to_schema(sch, COLUMN_NAME, 30);   // 30文字まで
     add_int_field_to_schema(sch, COLUMN_MAJORID);
     add_int_field_to_schema(sch, COLUMN_ADMISSION_YEAR);
-    tm_create_table(tm, TABLE, sch, tx);
+    tm_create_table(tm, TABLE, sch, tx_make_table);
 
-    insert(tx, 1, "sushi", 100, 2020);
-    insert(tx, 2, "ramen", 101, 2015);
-    insert(tx, 3, "takoyaki", 201, 2018);
-    print_table(tx);
-    update_int(tx, COLUMN_MAJORID, 1, 200);
-    update_int(tx, COLUMN_ADMISSION_YEAR, 2, 2030);
-    update_varchar(tx, COLUMN_NAME, 3, "okonomiyaki");
-    print_table(tx);
+    // dbの変更を行うトランザクションの作成
+    Transaction *tx1 = new_Transaction(fm, lm, bm);
+    Transaction *tx2 = new_Transaction(fm, lm, bm);
+
+    insert(tx1, 1, "sushi", 100, 2020);
+    insert(tx1, 2, "ramen", 101, 2015);
+    print_table(tx1);
+    rollback(tx1);
+
+    print_table(tx2);
+    insert(tx2, 1, "sushi", 100, 2020);
+    insert(tx2, 2, "ramen", 101, 2015);
+    insert(tx2, 3, "takoyaki", 201, 2018);
+    print_table(tx2);
+    update_int(tx2, COLUMN_MAJORID, 1, 200);
+    update_int(tx2, COLUMN_ADMISSION_YEAR, 2, 2030);
+    update_varchar(tx2, COLUMN_NAME, 3, "okonomiyaki");
+    print_table(tx2);
 
     // トランザクションの終了
-    tx_commit(tx);
+    tx_commit(tx2);
 }
 
 
 void update_int(Transaction *tx, char *set_column, int target_student_id, int val) {
-    printf("update int : column == %s, student id == %d, new value => %d\n", set_column, target_student_id, val);
     Layout *layout = tm_get_layout(tm, TABLE, tx);
     TableIterator *tblitr = new_TableIterator(tx, layout, TABLE);
     while (tblitr_go_to_next_record(tblitr)) {
@@ -79,10 +88,12 @@ void update_int(Transaction *tx, char *set_column, int target_student_id, int va
         }
     }
     free_TableIterator(&tblitr);
+
+    // 操作の完了を伝える文字列出力
+    printf("update int: column == %s, student id == %d, new value => %d\n", set_column, target_student_id, val);
 }
 
 void update_varchar(Transaction *tx, char *set_column, int target_student_id, char *val) {
-    printf("update varchar : column == %s, student id == %d, new value => %s\n", set_column, target_student_id, val);
     Layout *layout = tm_get_layout(tm, TABLE, tx);
     TableIterator *tblitr = new_TableIterator(tx, layout, TABLE);
     while (tblitr_go_to_next_record(tblitr)) {
@@ -93,10 +104,12 @@ void update_varchar(Transaction *tx, char *set_column, int target_student_id, ch
         }
     }
     free_TableIterator(&tblitr);
+
+    // 操作の完了を伝える文字列出力
+    printf("update varchar: column = %s, student id = %d, new value => %s\n", set_column, target_student_id, val);
 }
 
 void insert(Transaction *tx, int student_id, char *name, int major_id, int admission_year) {
-    printf("insert : %d, %s, %d, %d\n", student_id, name, major_id, admission_year);
     Layout *layout = tm_get_layout(tm, TABLE, tx);
     TableIterator *tblitr = new_TableIterator(tx, layout, TABLE);
     tblitr_insert(tblitr);
@@ -105,6 +118,23 @@ void insert(Transaction *tx, int student_id, char *name, int major_id, int admis
     tblitr_set_int_to_current_slot(tblitr, COLUMN_MAJORID, major_id);
     tblitr_set_int_to_current_slot(tblitr, COLUMN_ADMISSION_YEAR, admission_year);
     free_TableIterator(&tblitr);
+
+    // 操作の完了を伝える文字列出力
+    printf("insert: %d, %s, %d, %d\n", student_id, name, major_id, admission_year);
+}
+
+void commit(Transaction *tx) {
+    tx_commit(tx);
+
+    // 操作の完了を伝える文字列出力
+    printf("commit: txnum = %d\n", tx->txnum);
+}
+
+void rollback(Transaction *tx) {
+    tx_rollback(tx);
+
+    // 操作の完了を伝える文字列出力
+    printf("rollback: txnum = %d\n", tx->txnum);
 }
 
 void print_table(Transaction *tx) {

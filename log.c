@@ -290,12 +290,11 @@ static void undo_set_int_log(Transaction *tx, char *record, int record_size) {
         exit(1);
     }
 
-    Block *blk = new_block(filename, blk_num);   
+    Block *blk = new_block(filename, blk_num);
     tx_pin(tx, blk);
     tx_set_int(tx, blk, offset, val, 1); // logに記録しない
     tx_unpin(tx, blk);
     free(page);
-    free(blk);
 }
 
 /**
@@ -347,5 +346,4 @@ static void undo_set_string_log(Transaction *tx, char *record, int record_size) 
     tx_set_string(tx, blk, offset, val, val_size, 1); // logに記録しない
     tx_unpin(tx, blk);
     free(page);
-    free(blk);
 }
