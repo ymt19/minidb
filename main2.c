@@ -41,13 +41,13 @@ int main() {
     bm = new_BufferManager(fm, lm, BuffsNum, PinLimit);
     tm = create_TableManager();
 
-    // 新規db作成時のtmの処理
-    Transaction *tm_save = new_Transaction(fm, lm, bm);
-    tm_save_TableManager(tm, tm_save);
-    tx_commit(tm_save);
+    // 既存db起動時の処理
+    Transaction *recover = start_transaction();
+    tx_recover(recover);
+    tx_commit(recover);
 
     // STUDENTテーブルの作成
-    Transaction *tx_make_table = new_Transaction(fm, lm, bm);
+    Transaction *tx_make_table = start_transaction();
     sch = new_schema();
     add_int_field_to_schema(sch, COLUMN_STUDENTID);
     add_string_field_to_schema(sch, COLUMN_NAME, 30);   // 30文字まで
@@ -56,30 +56,8 @@ int main() {
     tm_create_table(tm, TABLE, sch, tx_make_table);
 
     Transaction *tx1 = start_transaction();
-    insert(tx1, 1, "sushi", 100, 2020);
-    insert(tx1, 2, "ramen", 101, 2015);
     print_table(tx1);
-    rollback(tx1);
-
-    Transaction *tx2 = start_transaction();
-    print_table(tx2);
-    insert(tx2, 1, "sushi", 100, 2020);
-    insert(tx2, 2, "ramen", 101, 2015);
-    insert(tx2, 3, "takoyaki", 201, 2018);
-    print_table(tx2);
-    update_int(tx2, COLUMN_MAJORID, 1, 200);
-    update_int(tx2, COLUMN_ADMISSION_YEAR, 2, 2030);
-    update_varchar(tx2, COLUMN_NAME, 3, "okonomiyaki");
-    print_table(tx2);
-    delete(tx2, 2);
-    print_table(tx2);
-    insert(tx2, 4, "gyoza", 300, 2022);
-    print_table(tx2);
-    commit(tx2);
-
-    Transaction *tx3 = start_transaction();
-    insert(tx2, 5, "ramen-jiro", 100, 2020);
-    print_table(tx3);
+    commit(tx1);
 }
 
 
