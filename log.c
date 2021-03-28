@@ -172,7 +172,7 @@ int write_checkpoint_log(LogManager *lm) {
     set_int_to_page(record, 0, CHECKPOINT_LOG);
 
     int lsn = lm_append_log(lm, record->data, record_size);
-    printf("checkpoint lsn:%d\n", lsn);
+    // printf("checkpoint lsn:%d\n", lsn);
     free(record);
     return lsn;
 }

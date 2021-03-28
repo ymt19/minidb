@@ -3,6 +3,22 @@ main: main.c block.c buffer.c buffer_list.c buffer_manager.c field_list.c file_m
 
 main2: main2.c block.c buffer.c buffer_list.c buffer_manager.c field_list.c file_manager.c int_list.c layout.c log.c log_manager.c page.c record_id.c record_page.c recovery_manager.c schema.c string_int_list.c table_iterator.c table_manager.c transaction.c
 	gcc -Wall -g -o tmp2 main2.c block.c buffer.c buffer_list.c buffer_manager.c field_list.c file_manager.c int_list.c layout.c log.c log_manager.c page.c record_id.c record_page.c recovery_manager.c schema.c string_int_list.c table_iterator.c table_manager.c transaction.c
+	rm -rf data
+
+test_insert_update_delete: test_insert_update_delete.c student_table_operation.c block.c buffer.c buffer_list.c buffer_manager.c field_list.c file_manager.c int_list.c layout.c log.c log_manager.c page.c record_id.c record_page.c recovery_manager.c schema.c string_int_list.c table_iterator.c table_manager.c transaction.c
+	gcc -Wall -g -o test_insert_update_delete test_insert_update_delete.c student_table_operation.c block.c buffer.c buffer_list.c buffer_manager.c field_list.c file_manager.c int_list.c layout.c log.c log_manager.c page.c record_id.c record_page.c recovery_manager.c schema.c string_int_list.c table_iterator.c table_manager.c transaction.c
+	rm -rf tmp_test_insert_update_delete
+
+test_rollback: test_rollback.c student_table_operation.c block.c buffer.c buffer_list.c buffer_manager.c field_list.c file_manager.c int_list.c layout.c log.c log_manager.c page.c record_id.c record_page.c recovery_manager.c schema.c string_int_list.c table_iterator.c table_manager.c transaction.c
+	gcc -Wall -g -o test_rollback test_rollback.c student_table_operation.c block.c buffer.c buffer_list.c buffer_manager.c field_list.c file_manager.c int_list.c layout.c log.c log_manager.c page.c record_id.c record_page.c recovery_manager.c schema.c string_int_list.c table_iterator.c table_manager.c transaction.c
+	rm -rf tmp_test_rollback
+
+test_recover1: test_recover1.c student_table_operation.c block.c buffer.c buffer_list.c buffer_manager.c field_list.c file_manager.c int_list.c layout.c log.c log_manager.c page.c record_id.c record_page.c recovery_manager.c schema.c string_int_list.c table_iterator.c table_manager.c transaction.c
+	gcc -Wall -g -o test_recover1 test_recover1.c student_table_operation.c block.c buffer.c buffer_list.c buffer_manager.c field_list.c file_manager.c int_list.c layout.c log.c log_manager.c page.c record_id.c record_page.c recovery_manager.c schema.c string_int_list.c table_iterator.c table_manager.c transaction.c
+	rm -rf tmp_test_recover
+
+test_recover2: test_recover2.c student_table_operation.c block.c buffer.c buffer_list.c buffer_manager.c field_list.c file_manager.c int_list.c layout.c log.c log_manager.c page.c record_id.c record_page.c recovery_manager.c schema.c string_int_list.c table_iterator.c table_manager.c transaction.c
+	gcc -Wall -g -o test_recover2 test_recover2.c student_table_operation.c block.c buffer.c buffer_list.c buffer_manager.c field_list.c file_manager.c int_list.c layout.c log.c log_manager.c page.c record_id.c record_page.c recovery_manager.c schema.c string_int_list.c table_iterator.c table_manager.c transaction.c
 
 test_file_manager: test_file_manager.c file_manager.c block.c page.c
 	gcc -Wall -g -o test_file_manager test_file_manager.c file_manager.c block.c page.c
